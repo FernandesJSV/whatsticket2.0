@@ -21,7 +21,10 @@ const App = () => {
         },
       },
       palette: {
-        primary: { main: '#0872b9' },
+        primary: {
+          main: "#00CCFF",
+          contrastText: "#fff",
+        },
         danger: { main: '#4caf50' },
       },
     },

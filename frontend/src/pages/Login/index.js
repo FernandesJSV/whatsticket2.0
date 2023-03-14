@@ -11,24 +11,34 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
+import {
+	IconButton,
+	InputAdornment
+} from '@material-ui/core';
+import {
+	Visibility,
+	VisibilityOff
+} from '@material-ui/icons';
+
 import { i18n } from "../../translate/i18n";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import logo from "../../assets/logoLoginOption.png";
+import { systemVars } from "../../../package.json";
 
-
-// const Copyright = () => {
-// 	return (
-// 		<Typography variant="body2" color="textSecondary" align="center">
-// 			{"Copyleft "}
-// 			<Link color="inherit" href="https://github.com/canove">
-// 				Canove
-// 			</Link>{" "}
-// 			{new Date().getFullYear()}
-// 			{"."}
-// 		</Typography>
-// 	);
-// };
+const Copyright = () => {
+	return (
+		<Typography variant="body2" color="textSecondary" align="center">
+			{"Copyright "}
+			<Link color="inherit" href={"https://" + systemVars.controllerDomain}>
+				{systemVars.appName},
+			</Link>{" "}
+			{new Date().getFullYear()}
+			{". v"}
+			{systemVars.version}
+		</Typography>
+	);
+};
 
 const useStyles = makeStyles(theme => ({
 	paper: {
@@ -36,6 +46,13 @@ const useStyles = makeStyles(theme => ({
 		display: "flex",
 		flexDirection: "column",
 		alignItems: "center",
+	},
+	img: {
+		margin: theme.spacing(1),
+		marginBottom: "30px",
+		paddingBottom: "30px",
+		width: "250px",
+		borderBottom: "1px solid #cecece",
 	},
 	avatar: {
 		margin: theme.spacing(1),
@@ -54,6 +71,7 @@ const Login = () => {
 	const classes = useStyles();
 
 	const [user, setUser] = useState({ email: "", password: "" });
+	const [showPassword, setShowPassword] = useState(false);
 
 	const { handleLogin } = useContext(AuthContext);
 
@@ -71,11 +89,11 @@ const Login = () => {
 			<CssBaseline />
 			<div className={classes.paper}>
 				<div>
-					<img style={{ margin: "0 auto", height: "80px", width: "100%" }} src={logo} alt="Whats" />
+					<img className={classes.img} src={logo} alt="Whats" />
 				</div>
-				{/* <Typography component="h1" variant="h5">
+				<Typography component="h1" variant="h5">
 					{i18n.t("login.title")}
-				</Typography> */}
+				</Typography>
 				<form className={classes.form} noValidate onSubmit={handlSubmit}>
 					<TextField
 						variant="outlined"
@@ -97,11 +115,24 @@ const Login = () => {
 						fullWidth
 						name="password"
 						label={i18n.t("login.form.password")}
-						type="password"
+						// type="password"
 						id="password"
 						value={user.password}
 						onChange={handleChangeInput}
 						autoComplete="current-password"
+						type={showPassword ? 'text' : 'password'}
+						InputProps={{
+							endAdornment: (
+								<InputAdornment position="end">
+									<IconButton
+										aria-label="toggle password visibility"
+										onClick={() => setShowPassword((e) => !e)}
+									>
+										{showPassword ? <VisibilityOff /> : <Visibility />}
+									</IconButton>
+								</InputAdornment>
+							)
+						}}
 					/>
 					<Button
 						type="submit"
@@ -112,10 +143,22 @@ const Login = () => {
 					>
 						{i18n.t("login.buttons.submit")}
 					</Button>
-					
+					<Grid container>
+						<Grid item>
+							<Link
+								href="#"
+								variant="body2"
+								component={RouterLink}
+								to="/signup"
+							>
+								{i18n.t("login.buttons.register")}
+							</Link>
+						</Grid>
+					</Grid>
+
 				</form>
 			</div>
-			<Box mt={8}>{/* <Copyright /> */}</Box>
+			<Box mt={8}><Copyright /></Box>
 		</Container>
 	);
 };

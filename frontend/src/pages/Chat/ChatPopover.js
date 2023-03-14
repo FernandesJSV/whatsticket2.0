@@ -222,6 +222,7 @@ export default function ChatPopover() {
         variant="contained"
         color={invisible ? "default" : "inherit"}
         onClick={handleClick}
+        color="inherit"
       >
         <Badge color="secondary" variant="dot" invisible={invisible}>
           <ForumIcon />

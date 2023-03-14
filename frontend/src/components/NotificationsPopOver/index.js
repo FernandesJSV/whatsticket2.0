@@ -197,7 +197,7 @@ const NotificationsPopOver = () => {
         ref={anchorEl}
         aria-label="Mostrar Notificações"
         variant="contained"
-
+        color="inherit"
       >
           <ChatIcon />
         {/* <Badge badgeContent={notifications.length} color="secondary">

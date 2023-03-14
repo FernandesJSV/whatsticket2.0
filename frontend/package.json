@@ -2,6 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "systemVars": {
+    "version": "2.0.0",
+    "appName": "Whatsticket",
+    "controllerDomain": "Whatsticket.com.br",
+    "settingsSupportLink": "https://api.whatsapp.com/send?phone=558596245292"
+  },
   "dependencies": {
     "@date-io/date-fns": "^2.14.0",
     "@material-ui/core": "4.12.3",

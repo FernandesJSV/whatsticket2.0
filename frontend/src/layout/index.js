@@ -29,9 +29,10 @@ import { i18n } from "../translate/i18n";
 import toastError from "../errors/toastError";
 import AnnouncementsPopover from "../components/AnnouncementsPopover";
 
-import logo from "../assets/logoPainelOption.png"; 
+import logo from "../assets/logoPainelOption.png";
 import { socketConnection } from "../services/socket";
 import ChatPopover from "../pages/Chat/ChatPopover";
+import systemVars from '../../package.json'
 
 const drawerWidth = 300;
 
@@ -79,6 +80,11 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     fontSize: 14,
   },
+  version: {
+    opacity:"0.5",
+    fontSize: "12px",
+    marginLeft: "8px",
+  },
   drawerPaper: {
     position: "relative",
     whiteSpace: "nowrap",
@@ -123,6 +129,17 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     ...theme.scrollbarStyles,
   },
+  logo: {
+    display: "flex",
+    alignItems: "left",
+    justifyContent: "flex-start",
+    width: "183px",
+    paddingLeft: "6px"
+    // paddingLeft: "32px"
+  },
+  logoImg: {
+    width: "185px",
+  }
 }));
 
 const LoggedInLayout = ({ children }) => {
@@ -224,7 +241,9 @@ const LoggedInLayout = ({ children }) => {
         open={drawerOpen}
       >
         <div className={classes.toolbarIcon}>
-          <img src={logo} style={{ margin: "0 auto", height: "50px", width: "100%" }} alt="logo" />
+          <div className={classes.logo}>
+            <img className={classes.logoImg} src={logo} alt="Logo" />
+          </div>
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
             <ChevronLeftIcon />
           </IconButton>
@@ -272,6 +291,11 @@ const LoggedInLayout = ({ children }) => {
             ) : (
               user.name
             )}
+            <span className={classes.version}>
+              {" v"}
+              {systemVars.systemVars.version}
+              {process.env.NODE_ENV === "development" ? " (dev)" : ""}
+            </span>
           </Typography>
           {user.id && <NotificationsPopOver />}
 
@@ -286,7 +310,7 @@ const LoggedInLayout = ({ children }) => {
               aria-haspopup="true"
               onClick={handleMenu}
               variant="contained"
-
+              color="inherit"
             >
               <AccountCircle />
             </IconButton>

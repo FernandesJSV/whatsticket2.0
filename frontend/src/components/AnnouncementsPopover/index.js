@@ -240,6 +240,7 @@ export default function AnnouncementsPopover() {
         variant="contained"
         aria-describedby={id}
         onClick={handleClick}
+        color='inherit'
       >
         <Badge
           color="secondary"

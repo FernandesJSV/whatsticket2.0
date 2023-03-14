@@ -24,6 +24,7 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import logo from "../../assets/logoLoginOption.png";
 
 import { i18n } from "../../translate/i18n";
 
@@ -53,6 +54,13 @@ const useStyles = makeStyles(theme => ({
 	avatar: {
 		margin: theme.spacing(1),
 		backgroundColor: theme.palette.secondary.main,
+	},
+	img: {
+		margin: theme.spacing(1),
+		marginBottom: "30px",
+		paddingBottom: "30px",
+		width: "250px",
+		borderBottom: "1px solid #cecece",
 	},
 	form: {
 		width: "100%",
@@ -117,9 +125,12 @@ const SignUp = () => {
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
 			<div className={classes.paper}>
-				<Avatar className={classes.avatar}>
+				{/* <Avatar className={classes.avatar}>
 					<LockOutlinedIcon />
-				</Avatar>
+				</Avatar> */}
+				<div>
+					<img className={classes.img} src={logo} alt="Whats" />
+				</div>
 				<Typography component="h1" variant="h5">
 					{i18n.t("signup.title")}
 				</Typography>
