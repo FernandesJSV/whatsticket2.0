@@ -31,18 +31,22 @@ import { i18n } from "../../translate/i18n";
 import { openApi } from "../../services/api";
 import toastError from "../../errors/toastError";
 import moment from "moment";
-// const Copyright = () => {
-// 	return (
-// 		<Typography variant="body2" color="textSecondary" align="center">
-// 			{"Copyleft "}
-// 			<Link color="inherit" href="https://github.com/canove">
-// 				Canove
-// 			</Link>{" "}
-// 			{new Date().getFullYear()}
-// 			{"."}
-// 		</Typography>
-// 	);
-// };
+import systemVars from '../../../package.json'
+import { red } from "@material-ui/core/colors";
+
+const Copyright = () => {
+	return (
+		<Typography variant="body2" color="textSecondary" align="center">
+			{"Copyright "}
+			<Link color="inherit" href={"https://" + systemVars.systemVars.controllerDomain}>
+				{systemVars.systemVars.appName},
+			</Link>{" "}
+			{new Date().getFullYear()}
+			{". v"}
+			{systemVars.systemVars.version}
+		</Typography>
+	);
+};
 
 const useStyles = makeStyles(theme => ({
 	paper: {
@@ -90,7 +94,17 @@ const SignUp = () => {
 		companyId = params.companyId
 	}
 
-	const initialState = { name: "", email: "", password: "", planId: "", };
+	const initialState = { cnpj: "", razaosocial: "", name: "", telefone: "", cep: "", estado: "", cidade: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", };
+
+	const [numeroIsSN, setNumeroIsSN] = useState(false);
+
+	function changNumeroIsSN() {
+		if (numeroIsSN == false) {
+			setNumeroIsSN(true)
+		} else {
+			setNumeroIsSN(false)
+		}
+	}
 
 	const [user] = useState(initialState);
 	const dueDate = moment().add(3, "day").format();
@@ -120,6 +134,92 @@ const SignUp = () => {
 		fetchData();
 	}, []);
 
+	const [values, setValues] = useState({
+		cnpj: `${initialState.cnpj}`,
+		razaosocial: `${initialState.razaosocial}`,
+		telefone: `${initialState.telefone}`,
+		cep: `${initialState.cep}`,
+		estado: `${initialState.estado}`,
+		cidade: `${initialState.cidade}`,
+		logradouro: `${initialState.logradouro}`,
+		numero: `${initialState.numero}`,
+		diasVencimento: [1, 5, 10, 15, 20, 25]
+	});
+
+	const obterEndereco = (cep) => {
+		const url = `https://viacep.com.br/ws/${cep}/json/`;
+
+		return fetch(url)
+			.then(response => response.json())
+			.then(data => {
+				if (!data.erro) {
+					return data;
+				} else {
+					return null;
+				}
+			})
+			.catch(error => console.error(error));
+	}
+
+	function preencherCamposComEndereco(data) {
+		setValues({
+			...values,
+			cep: data.cep,
+			estado: data.uf,
+			cidade: data.localidade,
+			logradouro: data.logradouro
+		})
+	}
+
+	const onChange = (e) => {
+		const { name, value } = e.target
+
+		setValues({
+			...values,
+			[name]: value
+		});
+
+		if (name === 'cep' && value.length === 9) {
+			obterEndereco(value).then(data => {
+			  if (data) {
+				preencherCamposComEndereco(data);
+			  }
+			});
+		  }
+	}
+
+	const cnpjMask = (cnpj) => {
+		return cnpj
+			.replace(/\D/g, "")
+			.substring(0, 14)
+			.replace(/^(\d{2})(\d)/, "$1.$2")
+			.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+			.replace(/\.(\d{3})(\d)/, ".$1/$2")
+			.replace(/(\d{4})(\d)/, "$1-$2")
+	}
+
+	const telefoneMask = (telefone) => {
+		return telefone
+			.replace(/\D/g, "")
+			.substring(0, 11)
+			.replace(/^(\d{2})(\d)/, "($1) $2")
+			.replace(/(\d)(\d{4})$/, "$1-$2")
+	}
+
+	const cepMask = (cep) => {
+		return cep
+			.replace(/\D/g, '')
+			.substring(0, 8)
+			.replace(/^(\d{5})(\d)/, '$1-$2')
+	}
+
+	const numeroMask = (numero) => {
+		numero = numero.replace(/\D/g, '');
+		if (numero.length > 5) {
+			numero = numero.substring(0, 5);
+		}
+		return numero;
+	}
 
 	return (
 		<Container component="main" maxWidth="xs">
@@ -152,6 +252,36 @@ const SignUp = () => {
 								<Grid item xs={12}>
 									<Field
 										as={TextField}
+										autoComplete="cnpj"
+										name="cnpj"
+										error={touched.cnpj && Boolean(errors.cnpj)}
+										helperText={touched.cnpj && errors.cnpj}
+										variant="outlined"
+										fullWidth
+										id="cnpj"
+										label="CNPJ da Empresa"
+										onChange={onChange}
+										value={cnpjMask(values.cnpj)}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="razaosocial"
+										name="razaosocial"
+										error={touched.razaosocial && Boolean(errors.razaosocial)}
+										helperText={touched.razaosocial && errors.razaosocial}
+										variant="outlined"
+										fullWidth
+										id="razaosocial"
+										label="Razão Social"
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
 										autoComplete="name"
 										name="name"
 										error={touched.name && Boolean(errors.name)}
@@ -161,6 +291,108 @@ const SignUp = () => {
 										id="name"
 										label="Nome da Empresa"
 									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="telefone"
+										name="telefone"
+										error={touched.telefone && Boolean(errors.telefone)}
+										helperText={touched.telefone && errors.telefone}
+										variant="outlined"
+										fullWidth
+										id="telefone"
+										label="Telefone"
+										onChange={onChange}
+										value={telefoneMask(values.telefone)}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="cep"
+										name="cep"
+										error={touched.cep && Boolean(errors.cep)}
+										helperText={touched.cep && errors.cep}
+										variant="outlined"
+										fullWidth
+										id="cep"
+										label="CEP"
+										onChange={onChange}
+										value={cepMask(values.cep)}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="estado"
+										name="estado"
+										error={touched.estado && Boolean(errors.estado)}
+										helperText={touched.estado && errors.estado}
+										variant="outlined"
+										fullWidth
+										id="estado"
+										label="Estado"
+										onChange={onChange}
+										value={values.estado}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="cidade"
+										name="cidade"
+										error={touched.cidade && Boolean(errors.cidade)}
+										helperText={touched.cidade && errors.cidade}
+										variant="outlined"
+										fullWidth
+										id="cidade"
+										label="Cidade"
+										onChange={onChange}
+										value={values.cidade}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="logradouro"
+										name="logradouro"
+										error={touched.logradouro && Boolean(errors.logradouro)}
+										helperText={touched.logradouro && errors.logradouro}
+										variant="outlined"
+										fullWidth
+										id="logradouro"
+										label="Logradouro"
+										onChange={onChange}
+										value={values.logradouro}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="numero"
+										name="numero"
+										error={touched.numero && Boolean(errors.numero)}
+										helperText={touched.numero && errors.numero}
+										variant="outlined"
+										fullWidth
+										id="numero"
+										label="Número"
+										onChange={onChange}
+										value={
+											(numeroIsSN == false) ? (numeroMask(values.numero)) : ("S/N")
+										}
+									/>
+									<label>
+										<span>Sem número</span>
+										<input type='checkbox' onClick={changNumeroIsSN} />
+									</label>
 								</Grid>
 
 								<Grid item xs={12}>
@@ -191,6 +423,22 @@ const SignUp = () => {
 										autoComplete="current-password"
 										required
 									/>
+								</Grid>
+								<Grid item xs={12}>
+									<InputLabel htmlFor="diaVencimento-selection">Dia do Vencimento</InputLabel>
+									<Field
+										as={Select}
+										variant="outlined"
+										fullWidth
+										id="diaVencimento-selection"
+										label="diaVencimento"
+										name="diaVencimento"
+										required
+									>
+										{values.diasVencimento.map((value, key) => (
+											(value < 10) ? (<MenuItem key={key} value={value}>0{value}</MenuItem>) : <MenuItem key={key} value={value}>{value}</MenuItem>
+										))}
+									</Field>
 								</Grid>
 								<Grid item xs={12}>
 									<InputLabel htmlFor="plan-selection">Plano</InputLabel>
@@ -236,7 +484,7 @@ const SignUp = () => {
 					)}
 				</Formik>
 			</div>
-			<Box mt={5}>{/* <Copyright /> */}</Box>
+			<Box mt={5}><Copyright /></Box>
 		</Container>
 	);
 };
