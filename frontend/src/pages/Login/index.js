@@ -26,6 +26,9 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import logo from "../../assets/logoLoginOption.png";
 import { systemVars } from "../../../package.json";
 
+import politicaDePrivacidade from '../../assets/politicaPrivacidade.pdf'
+import termosDeUso from '../../assets/termosDeUso.pdf'
+
 const Copyright = () => {
 	return (
 		<Typography variant="body2" color="textSecondary" align="center">
@@ -39,6 +42,19 @@ const Copyright = () => {
 		</Typography>
 	);
 };
+
+const PoliticaPrivacidadeTermosDeUso = () => {
+	return (
+		<Typography variant="body2" color="textSecondary" align="center">
+			<Link target={'_blank'} download='Política de Privacidade Whatsticket.pdf' color="inherit" href={politicaDePrivacidade}>
+				{"Política de Privacidade"}
+			</Link>{" e "}
+			<Link target={'_blank'} download='Termos de Uso.pdf' color="inherit" href={termosDeUso}>
+				{"Termos de Uso"}
+			</Link>
+		</Typography>
+	)
+}
 
 const useStyles = makeStyles(theme => ({
 	paper: {
@@ -159,6 +175,7 @@ const Login = () => {
 				</form>
 			</div>
 			<Box mt={8}><Copyright /></Box>
+			<Box mt={3}><PoliticaPrivacidadeTermosDeUso/></Box>
 		</Container>
 	);
 };
