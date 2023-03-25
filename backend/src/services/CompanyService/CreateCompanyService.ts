@@ -71,7 +71,7 @@ const CreateCompanyService = async (
     defaults: {
       name: name,
       email: email,
-      password: "mudar123",
+      password: password,
       profile: "admin",
       companyId: company.id
     }
