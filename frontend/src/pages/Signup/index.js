@@ -110,7 +110,7 @@ const SignUp = () => {
 	}
 
 	const [user] = useState(initialState);
-	const dueDate = moment().add(3, "day").format();
+	const dueDate = moment().add(7, "day").format();
 	const handleSignUp = async values => {
 		Object.assign(values, { recurrence: "MENSAL" });
 		Object.assign(values, { dueDate: dueDate });
@@ -425,6 +425,7 @@ const SignUp = () => {
 									/>
 								</Grid>
 
+								{/* Componente padrão - Nome da empresa */}
 								<Grid item xs={12}>
 									<Field
 										as={TextField}
@@ -559,6 +560,7 @@ const SignUp = () => {
 									</label>
 								</Grid>
 
+								{/* Componente padrão - Email */}
 								<Grid item xs={12}>
 									<Field
 										as={TextField}
@@ -573,6 +575,8 @@ const SignUp = () => {
 										required
 									/>
 								</Grid>
+
+								{/* Componente padrão - Senha */}
 								<Grid item xs={12}>
 									<Field
 										as={TextField}
@@ -606,6 +610,8 @@ const SignUp = () => {
 										))}
 									</Field>
 								</Grid>
+
+								{/* Componente padrão - Seleção de plano */}
 								<Grid item xs={12}>
 									<InputLabel htmlFor="plan-selection">Plano</InputLabel>
 									<Field
@@ -639,6 +645,7 @@ const SignUp = () => {
 									</label>
 								</Typography>
 							</Box>
+							{/* Componente padrão - Botão de Cadastro */}
 							<Button
 								type="submit"
 								fullWidth
