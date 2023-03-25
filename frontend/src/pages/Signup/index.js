@@ -34,6 +34,9 @@ import moment from "moment";
 import systemVars from '../../../package.json'
 import { red } from "@material-ui/core/colors";
 
+import politicaDePrivacidade from '../../assets/politicaPrivacidade.pdf'
+import termosDeUso from '../../assets/termosDeUso.pdf'
+
 const Copyright = () => {
 	return (
 		<Typography variant="body2" color="textSecondary" align="center">
@@ -94,7 +97,7 @@ const SignUp = () => {
 		companyId = params.companyId
 	}
 
-	const initialState = { cnpj: "", razaosocial: "", name: "", telefone: "", cep: "", estado: "", cidade: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", };
+	const initialState = { cnpj: "", razaosocial: "", name: "", telefone: "", cep: "", estado: "", cidade: "", bairro: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", };
 
 	const [numeroIsSN, setNumeroIsSN] = useState(false);
 
@@ -134,19 +137,99 @@ const SignUp = () => {
 		fetchData();
 	}, []);
 
+	const [valueTermos, setValueTermos] = useState(false);
+
 	const [values, setValues] = useState({
 		cnpj: `${initialState.cnpj}`,
 		razaosocial: `${initialState.razaosocial}`,
+		name: `${initialState.name}`,
 		telefone: `${initialState.telefone}`,
 		cep: `${initialState.cep}`,
 		estado: `${initialState.estado}`,
 		cidade: `${initialState.cidade}`,
+		bairro: `${initialState.bairro}`,
 		logradouro: `${initialState.logradouro}`,
 		numero: `${initialState.numero}`,
-		diasVencimento: [1, 5, 10, 15, 20, 25]
+		diasVencimento: [1, 5, 10, 15, 20, 25],
+		diaVencimento: `${initialState.diaVencimento}`,
+		planId: `${initialState.planId}`,
 	});
 
-	const obterEndereco = (cep) => {
+	const cadastrarClienteNoAssas = () => {
+		let request = new XMLHttpRequest();
+		request.open('POST', 'https://sandbox.asaas.com/api/v3/customers');
+
+		request.setRequestHeader('Content-Type', 'application/json');
+		request.setRequestHeader('access_token', '$aact_YTU5YTE0M2M2N2I4MTliNzk0YTI5N2U5MzdjNWZmNDQ6OjAwMDAwMDAwMDAwMDAyODQ2NTE6OiRhYWNoXzFjYjgwYmFmLWZjYTQtNGMzNC04NTJkLWUwZGZmOWQ0ZjE5Zg==');
+
+		request.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				console.log('Status:', this.status);
+				console.log('Headers:', this.getAllResponseHeaders());
+				console.log('Body:', this.responseText);
+			}
+		};
+
+		let body = {
+			'name': values.name,
+			'email': values.email,
+			'phone': values.telefone,
+			'mobilePhone': values.telefone,
+			'cpfCnpj': values.cnpj,
+			'postalCode': values.cep,
+			'address': '',
+			'addressNumber': values.numero,
+			'complement': '',
+			'province': '',
+			'externalReference': '',
+			'notificationDisabled': false,
+			'additionalEmails': '',
+			'municipalInscription': '',
+			'stateInscription': '',
+			'observations': 'Novo cliente'
+		};
+
+		request.send(JSON.stringify(body));
+	}
+
+	const fazerAssinaturaCliente = () => {
+		let request = new XMLHttpRequest();
+		request.open('POST', 'https://www.asaas.com/api/v3/subscriptions');
+
+		request.setRequestHeader('Content-Type', 'application/json');
+		request.setRequestHeader('access_token', '$aact_YTU5YTE0M2M2N2I4MTliNzk0YTI5N2U5MzdjNWZmNDQ6OjAwMDAwMDAwMDAwMDAyODQ2NTE6OiRhYWNoXzFjYjgwYmFmLWZjYTQtNGMzNC04NTJkLWUwZGZmOWQ0ZjE5Zg==');
+
+		request.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				console.log('Status:', this.status);
+				console.log('Headers:', this.getAllResponseHeaders());
+				console.log('Body:', this.responseText);
+			}
+		};
+
+		var body = {
+			'customer': '{CUSTOMER_ID}',
+			'billingType': 'BOLETO',
+			'nextDueDate': `${Date}`,
+			'value': values.planId.value,
+			'cycle': 'MONTHLY',
+			'description': values.planId.name,
+			// 'discount': {
+			// 	'value': 10,
+			// 	'dueDateLimitDays': 0
+			// },
+			'fine': {
+				'value': 1
+			},
+			'interest': {
+				'value': 2
+			}
+		};
+
+		request.send(JSON.stringify(body));
+	}
+
+	const obterEndereco = async (cep) => {
 		const url = `https://viacep.com.br/ws/${cep}/json/`;
 
 		return fetch(url)
@@ -161,12 +244,45 @@ const SignUp = () => {
 			.catch(error => console.error(error));
 	}
 
+	const obterDadosEmpresa = async (cnpj) => {
+		cnpj = removeCnpjMask(cnpj);
+
+		const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}/days/15`;
+
+		let request = new XMLHttpRequest();
+
+		request.open('GET', url);
+
+		request.setRequestHeader('Content-Type', 'application/json');
+		request.setRequestHeader('Authorization', 'Bearer d8f84800c2b14af485ecdd46aa354a46a8c75dddbfed1759eaa2cd544705b749');
+
+		request.onload = function () {
+			if (request.status === 200) {
+				let response = JSON.parse(request.responseText);
+				return response;
+			} else {
+				console.log('Erro ao fazer requisição:', request.statusText);
+			}
+		};
+
+		request.send();
+	}
+
+	function preencherCamposComCnpj(data) {
+		setValues({
+			...values,
+			razaosocial: data.nome,
+			name: data.fantasia
+		})
+	}
+
 	function preencherCamposComEndereco(data) {
 		setValues({
 			...values,
 			cep: data.cep,
 			estado: data.uf,
 			cidade: data.localidade,
+			bairro: data.bairro,
 			logradouro: data.logradouro
 		})
 	}
@@ -181,11 +297,30 @@ const SignUp = () => {
 
 		if (name === 'cep' && value.length === 9) {
 			obterEndereco(value).then(data => {
-			  if (data) {
-				preencherCamposComEndereco(data);
-			  }
+				if (data) {
+					preencherCamposComEndereco(data);
+				}
 			});
-		  }
+		}
+
+		if (name === 'cnpj' && value.length === 18) {
+			obterDadosEmpresa(value)
+				.then(data => {
+					console.log(data)
+					if (data) {
+						preencherCamposComCnpj(data);
+					}
+				})
+		}
+
+		console.log(values);
+	}
+
+	const onChangePlan = (e) => {
+		setValues({
+			...values,
+			planId: e
+		})
 	}
 
 	const cnpjMask = (cnpj) => {
@@ -196,6 +331,14 @@ const SignUp = () => {
 			.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
 			.replace(/\.(\d{3})(\d)/, ".$1/$2")
 			.replace(/(\d{4})(\d)/, "$1-$2")
+	}
+
+	const removeCnpjMask = (cnpj) => {
+		return cnpj
+			.replace(".", "")
+			.replace(".", "")
+			.replace("/", "")
+			.replace("-", "")
 	}
 
 	const telefoneMask = (telefone) => {
@@ -258,6 +401,7 @@ const SignUp = () => {
 										helperText={touched.cnpj && errors.cnpj}
 										variant="outlined"
 										fullWidth
+										required
 										id="cnpj"
 										label="CNPJ da Empresa"
 										onChange={onChange}
@@ -276,6 +420,8 @@ const SignUp = () => {
 										fullWidth
 										id="razaosocial"
 										label="Razão Social"
+										value={values.razaosocial}
+										onChange={onChange}
 									/>
 								</Grid>
 
@@ -290,6 +436,8 @@ const SignUp = () => {
 										fullWidth
 										id="name"
 										label="Nome da Empresa"
+										// value={values.name}
+										// onChange={onChange}
 									/>
 								</Grid>
 
@@ -354,6 +502,22 @@ const SignUp = () => {
 										label="Cidade"
 										onChange={onChange}
 										value={values.cidade}
+									/>
+								</Grid>
+
+								<Grid item xs={12}>
+									<Field
+										as={TextField}
+										autoComplete="bairro"
+										name="bairro"
+										error={touched.bairro && Boolean(errors.bairro)}
+										helperText={touched.bairro && errors.bairro}
+										variant="outlined"
+										fullWidth
+										id="bairro"
+										label="Bairro"
+										onChange={onChange}
+										value={values.bairro}
 									/>
 								</Grid>
 
@@ -433,10 +597,12 @@ const SignUp = () => {
 										id="diaVencimento-selection"
 										label="diaVencimento"
 										name="diaVencimento"
+										value={values.diaVencimento}
+										onChange={onChange}
 										required
 									>
 										{values.diasVencimento.map((value, key) => (
-											(value < 10) ? (<MenuItem key={key} value={value}>0{value}</MenuItem>) : <MenuItem key={key} value={value}>{value}</MenuItem>
+											(value < 10) ? (<MenuItem name="diaVencimento" key={key} value={value}>0{value}</MenuItem>) : <MenuItem name="diaVencimento" key={key} value={value} onClick={onChange}>{value}</MenuItem>
 										))}
 									</Field>
 								</Grid>
@@ -452,19 +618,37 @@ const SignUp = () => {
 										required
 									>
 										{plans.map((plan, key) => (
-											<MenuItem key={key} value={plan.id}>
+											<MenuItem key={key} value={plan.id} name="planId" onClick={() => onChangePlan(plan.id)}>
 												{plan.name} - Atendentes: {plan.users} - WhatsApp: {plan.connections} - Filas: {plan.queues} - R$ {plan.value}
 											</MenuItem>
 										))}
 									</Field>
 								</Grid>
 							</Grid>
+							<Box mt={2}>
+								<Typography variant="body2" color="textSecondary" align="center">
+									<label>
+										<input type={'checkbox'} onClick={() => (valueTermos) ? (setValueTermos(false)) : setValueTermos(true)} />
+										<span>Eu aceito as </span>
+										<Link target={'_blank'} download='Política de Privacidade Whatsticket.pdf' color="inherit" href={politicaDePrivacidade}>
+											{"Políticas de Privacidade"}
+										</Link>{" e os "}
+										<Link target={'_blank'} download='Termos de Uso.pdf' color="inherit" href={termosDeUso}>
+											{"Termos de Uso"}
+										</Link>
+									</label>
+								</Typography>
+							</Box>
 							<Button
 								type="submit"
 								fullWidth
 								variant="contained"
 								color="primary"
 								className={classes.submit}
+								disabled={!valueTermos}
+							onClick={() => {
+								cadastrarClienteNoAssas();
+							}}
 							>
 								{i18n.t("signup.buttons.submit")}
 							</Button>
