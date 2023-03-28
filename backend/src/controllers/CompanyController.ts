@@ -25,6 +25,15 @@ type CompanyData = {
   phone?: string;
   email?: string; 
   status?: boolean;
+  cnpj?: string;
+  razaosocial?: string;
+  cep?: string;
+  estado?: string;
+  cidade?: string;
+  bairro?: string;
+  logradouro?: string;
+  numero?: string;
+  diaVencimento?: string;
   planId?: number;
   campaignsEnabled?: boolean;
   dueDate?: string;

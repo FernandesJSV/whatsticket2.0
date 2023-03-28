@@ -128,6 +128,33 @@ class Company extends Model<Company> {
     hooks: true
   })
   ticketTrankins: TicketTraking[];
+
+  @Column
+  cnpj: string;
+
+  @Column
+  razaosocial: string;
+
+  @Column
+  cep: string;
+
+  @Column
+  estado: string;
+
+  @Column
+  cidade: string;
+
+  @Column
+  bairro: string;
+
+  @Column
+  logradouro: string;
+
+  @Column
+  numero: string;
+
+  @Column
+  diaVencimento: string;
 }
 
 export default Company;

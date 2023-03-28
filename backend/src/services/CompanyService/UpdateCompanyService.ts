@@ -8,6 +8,15 @@ interface CompanyData {
   phone?: string;
   email?: string;
   status?: boolean;
+  cnpj?: string;
+  razaosocial?: string;
+  cep?: string;
+  estado?: string;
+  cidade?: string;
+  bairro?: string;
+  logradouro?: string;
+  numero?: string;
+  diaVencimento?: string;
   planId?: number;
   campaignsEnabled?: boolean;
   dueDate?: string;
@@ -23,6 +32,15 @@ const UpdateCompanyService = async (
     phone,
     email,
     status,
+    cnpj,
+    razaosocial,
+    cep,
+    estado,
+    cidade,
+    bairro,
+    logradouro,
+    numero,
+    diaVencimento,
     planId,
     campaignsEnabled,
     dueDate,
@@ -38,6 +56,15 @@ const UpdateCompanyService = async (
     phone,
     email,
     status,
+    cnpj,
+    razaosocial,
+    cep,
+    estado,
+    cidade,
+    bairro,
+    logradouro,
+    numero,
+    diaVencimento,
     planId,
     dueDate,
     recurrence
