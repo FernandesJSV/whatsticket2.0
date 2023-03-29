@@ -1,8 +1,4 @@
-import * as Yup from "yup";
-import AppError from "../../errors/AppError";
-import Company from "../../models/Company";
-import User from "../../models/User";
-import Setting from "../../models/Setting";
+import ShowPlanService from "../PlanService/ShowPlanService";
 import axios from "axios";
 
 interface CompanyData {
@@ -50,10 +46,10 @@ const CreateCompanyAssasService = async (
         recurrence
     } = companyData;
 
-    let customeid = 0;
+    let customeid = "";
 
     //Requisição para a API do Asaas para realizar o cadastro do cliente
-    axios.post('https://www.asaas.com/api/v3/customers', {
+    await axios.post('https://www.asaas.com/api/v3/customers', {
         'name': `${name}`,
         'email': `${email}`,
         'phone': `${phone}`,
@@ -80,7 +76,8 @@ const CreateCompanyAssasService = async (
             console.log('Status:', response.status);
             console.log('Headers:', response.headers);
             console.log('Data:', response.data);
-            customeid = response.data;
+            console.log('Id do Cliente Criado: ', response.data.id);
+            customeid = response.data.id;
             return response.data;
         })
         .catch(function (error) {
@@ -90,14 +87,16 @@ const CreateCompanyAssasService = async (
 
     let data = new Date();
 
+    let planSelected = await ShowPlanService(planId);
+
     //Requisição para a API do Asaas para criação da assinatura para cliente criado
-    axios.post("https://www.asaas.com/api/v3/subscriptions", {
+    await axios.post("https://www.asaas.com/api/v3/subscriptions", {
         'customer': `${customeid}`,
         'billingType': 'BOLETO',
         'nextDueDate': `${data.getFullYear()}-${data.getMonth() + 2}-${diaVencimento}`,
-        'value': 19.9,
+        'value': `${planSelected.value.toFixed(2)}`,
         'cycle': 'MONTHLY',
-        'description': 'Assinatura Plano Pró',
+        'description': `${planSelected.name}`,
         'discount': {
             'value': 0,
             'dueDateLimitDays': 0
