@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 // import { getIO } from "../libs/socket";
 import AppError from "../errors/AppError";
 import Company from "../models/Company";
@@ -12,6 +12,7 @@ import UpdateSchedulesService from "../services/CompanyService/UpdateSchedulesSe
 import DeleteCompanyService from "../services/CompanyService/DeleteCompanyService";
 import FindAllCompaniesService from "../services/CompanyService/FindAllCompaniesService";
 import User from "../models/User";
+import CreateCompanyAssasService from "../services/CompanyService/CreateCompanyAssasService";
 
 
 type IndexQuery = {
@@ -136,3 +137,14 @@ export const remove = async (
 
   return res.status(200).json(company);
 };
+
+export const createAssasClient = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const newCompany: CompanyData = req.body;
+  console.log(newCompany);
+  let response = await CreateCompanyAssasService(newCompany);
+
+  return res.status(200).json(response);
+}

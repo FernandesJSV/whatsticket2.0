@@ -97,7 +97,7 @@ const SignUp = () => {
 		companyId = params.companyId
 	}
 
-	const initialState = { cnpj: "", razaosocial: "", name: "", telefone: "", cep: "", estado: "", cidade: "", bairro: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", };
+	const initialState = { cnpj: "", razaosocial: "", name: "", phone: "", cep: "", estado: "", cidade: "", bairro: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", };
 
 	const [numeroIsSN, setNumeroIsSN] = useState(false);
 
@@ -118,6 +118,7 @@ const SignUp = () => {
 		Object.assign(values, { campaignsEnabled: true });
 		try {
 			await openApi.post("/companies/cadastro", values);
+			await openApi.post("companies/cadastroassas", values);
 			toast.success(i18n.t("signup.toasts.success"));
 			history.push("/login");
 		} catch (err) {
@@ -139,95 +140,22 @@ const SignUp = () => {
 
 	const [valueTermos, setValueTermos] = useState(false);
 
-	const [values, setValues] = useState({
+	const [valuesInput, setValuesInput] = useState({
 		cnpj: `${initialState.cnpj}`,
 		razaosocial: `${initialState.razaosocial}`,
 		name: `${initialState.name}`,
-		telefone: `${initialState.telefone}`,
+		phone: `${initialState.phone}`,
 		cep: `${initialState.cep}`,
 		estado: `${initialState.estado}`,
 		cidade: `${initialState.cidade}`,
 		bairro: `${initialState.bairro}`,
 		logradouro: `${initialState.logradouro}`,
 		numero: `${initialState.numero}`,
+		email: `${initialState.email}`,
 		diasVencimento: [1, 5, 10, 15, 20, 25],
 		diaVencimento: `${initialState.diaVencimento}`,
 		planId: `${initialState.planId}`,
 	});
-
-	const cadastrarClienteNoAssas = () => {
-		let request = new XMLHttpRequest();
-		request.open('POST', 'https://sandbox.asaas.com/api/v3/customers');
-
-		request.setRequestHeader('Content-Type', 'application/json');
-		request.setRequestHeader('access_token', '$aact_YTU5YTE0M2M2N2I4MTliNzk0YTI5N2U5MzdjNWZmNDQ6OjAwMDAwMDAwMDAwMDAyODQ2NTE6OiRhYWNoXzFjYjgwYmFmLWZjYTQtNGMzNC04NTJkLWUwZGZmOWQ0ZjE5Zg==');
-
-		request.onreadystatechange = function () {
-			if (this.readyState === 4) {
-				console.log('Status:', this.status);
-				console.log('Headers:', this.getAllResponseHeaders());
-				console.log('Body:', this.responseText);
-			}
-		};
-
-		let body = {
-			'name': values.name,
-			'email': values.email,
-			'phone': values.telefone,
-			'mobilePhone': values.telefone,
-			'cpfCnpj': values.cnpj,
-			'postalCode': values.cep,
-			'address': '',
-			'addressNumber': values.numero,
-			'complement': '',
-			'province': '',
-			'externalReference': '',
-			'notificationDisabled': false,
-			'additionalEmails': '',
-			'municipalInscription': '',
-			'stateInscription': '',
-			'observations': 'Novo cliente'
-		};
-
-		request.send(JSON.stringify(body));
-	}
-
-	const fazerAssinaturaCliente = () => {
-		let request = new XMLHttpRequest();
-		request.open('POST', 'https://www.asaas.com/api/v3/subscriptions');
-
-		request.setRequestHeader('Content-Type', 'application/json');
-		request.setRequestHeader('access_token', '$aact_YTU5YTE0M2M2N2I4MTliNzk0YTI5N2U5MzdjNWZmNDQ6OjAwMDAwMDAwMDAwMDAyODQ2NTE6OiRhYWNoXzFjYjgwYmFmLWZjYTQtNGMzNC04NTJkLWUwZGZmOWQ0ZjE5Zg==');
-
-		request.onreadystatechange = function () {
-			if (this.readyState === 4) {
-				console.log('Status:', this.status);
-				console.log('Headers:', this.getAllResponseHeaders());
-				console.log('Body:', this.responseText);
-			}
-		};
-
-		var body = {
-			'customer': '{CUSTOMER_ID}',
-			'billingType': 'BOLETO',
-			'nextDueDate': `${Date}`,
-			'value': values.planId.value,
-			'cycle': 'MONTHLY',
-			'description': values.planId.name,
-			// 'discount': {
-			// 	'value': 10,
-			// 	'dueDateLimitDays': 0
-			// },
-			'fine': {
-				'value': 1
-			},
-			'interest': {
-				'value': 2
-			}
-		};
-
-		request.send(JSON.stringify(body));
-	}
 
 	const obterEndereco = async (cep) => {
 		const url = `https://viacep.com.br/ws/${cep}/json/`;
@@ -269,16 +197,16 @@ const SignUp = () => {
 	}
 
 	function preencherCamposComCnpj(data) {
-		setValues({
-			...values,
+		setValuesInput({
+			...valuesInput,
 			razaosocial: data.nome,
 			name: data.fantasia
 		})
 	}
 
 	function preencherCamposComEndereco(data) {
-		setValues({
-			...values,
+		setValuesInput({
+			...valuesInput,
 			cep: data.cep,
 			estado: data.uf,
 			cidade: data.localidade,
@@ -290,8 +218,8 @@ const SignUp = () => {
 	const onChange = (e) => {
 		const { name, value } = e.target
 
-		setValues({
-			...values,
+		setValuesInput({
+			...valuesInput,
 			[name]: value
 		});
 
@@ -313,12 +241,19 @@ const SignUp = () => {
 				})
 		}
 
-		console.log(values);
+		console.log(valuesInput);
+	}
+
+	const onChangeDiaVencimento = (e) => {
+		setValuesInput({
+			...valuesInput,
+			diaVencimento: e
+		})
 	}
 
 	const onChangePlan = (e) => {
-		setValues({
-			...values,
+		setValuesInput({
+			...valuesInput,
 			planId: e
 		})
 	}
@@ -341,8 +276,8 @@ const SignUp = () => {
 			.replace("-", "")
 	}
 
-	const telefoneMask = (telefone) => {
-		return telefone
+	const phoneMask = (phone) => {
+		return phone
 			.replace(/\D/g, "")
 			.substring(0, 11)
 			.replace(/^(\d{2})(\d)/, "($1) $2")
@@ -384,6 +319,7 @@ const SignUp = () => {
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
 						setTimeout(() => {
+							// cadastrarClienteNoAssas(values);
 							handleSignUp(values);
 							actions.setSubmitting(false);
 						}, 400);
@@ -404,8 +340,8 @@ const SignUp = () => {
 										required
 										id="cnpj"
 										label="CNPJ da Empresa"
-										onChange={onChange}
-										value={cnpjMask(values.cnpj)}
+										// onChange={onChange}
+										// value={cnpjMask(valuesInput.cnpj)}
 									/>
 								</Grid>
 
@@ -420,8 +356,8 @@ const SignUp = () => {
 										fullWidth
 										id="razaosocial"
 										label="Razão Social"
-										value={values.razaosocial}
-										onChange={onChange}
+										// value={values.razaosocial}
+										// onChange={onChange}
 									/>
 								</Grid>
 
@@ -445,16 +381,16 @@ const SignUp = () => {
 								<Grid item xs={12}>
 									<Field
 										as={TextField}
-										autoComplete="telefone"
-										name="telefone"
-										error={touched.telefone && Boolean(errors.telefone)}
-										helperText={touched.telefone && errors.telefone}
+										autoComplete="phone"
+										name="phone"
+										error={touched.phone && Boolean(errors.phone)}
+										helperText={touched.phone && errors.phone}
 										variant="outlined"
 										fullWidth
-										id="telefone"
+										id="phone"
 										label="Telefone"
-										onChange={onChange}
-										value={telefoneMask(values.telefone)}
+										// onChange={onChange}
+										// value={telefoneMask(values.telefone)}
 									/>
 								</Grid>
 
@@ -469,8 +405,8 @@ const SignUp = () => {
 										fullWidth
 										id="cep"
 										label="CEP"
-										onChange={onChange}
-										value={cepMask(values.cep)}
+										// onChange={onChange}
+										// value={cepMask(values.cep)}
 									/>
 								</Grid>
 
@@ -485,8 +421,8 @@ const SignUp = () => {
 										fullWidth
 										id="estado"
 										label="Estado"
-										onChange={onChange}
-										value={values.estado}
+										// onChange={onChange}
+										// value={values.estado}
 									/>
 								</Grid>
 
@@ -501,8 +437,8 @@ const SignUp = () => {
 										fullWidth
 										id="cidade"
 										label="Cidade"
-										onChange={onChange}
-										value={values.cidade}
+										// onChange={onChange}
+										// value={values.cidade}
 									/>
 								</Grid>
 
@@ -517,8 +453,8 @@ const SignUp = () => {
 										fullWidth
 										id="bairro"
 										label="Bairro"
-										onChange={onChange}
-										value={values.bairro}
+										// onChange={onChange}
+										// value={values.bairro}
 									/>
 								</Grid>
 
@@ -533,8 +469,8 @@ const SignUp = () => {
 										fullWidth
 										id="logradouro"
 										label="Logradouro"
-										onChange={onChange}
-										value={values.logradouro}
+										// onChange={onChange}
+										// value={values.logradouro}
 									/>
 								</Grid>
 
@@ -549,9 +485,8 @@ const SignUp = () => {
 										fullWidth
 										id="numero"
 										label="Número"
-										onChange={onChange}
-										value={
-											(numeroIsSN == false) ? (numeroMask(values.numero)) : ("S/N")
+										disabled={
+											(numeroIsSN == false) ? (false) : (true)
 										}
 									/>
 									<label>
@@ -601,12 +536,10 @@ const SignUp = () => {
 										id="diaVencimento-selection"
 										label="diaVencimento"
 										name="diaVencimento"
-										value={values.diaVencimento}
-										onChange={onChange}
 										required
 									>
-										{values.diasVencimento.map((value, key) => (
-											(value < 10) ? (<MenuItem name="diaVencimento" key={key} value={value}>0{value}</MenuItem>) : <MenuItem name="diaVencimento" key={key} value={value} onClick={onChange}>{value}</MenuItem>
+										{valuesInput.diasVencimento.map((value, key) => (
+											(value < 10) ? (<MenuItem name="diaVencimento" key={key} value={value} onClick={() => onChangeDiaVencimento(value)}>0{value}</MenuItem>) : <MenuItem name="diaVencimento" key={key} value={value} onClick={() => onChangeDiaVencimento(value)}>{value}</MenuItem>
 										))}
 									</Field>
 								</Grid>
@@ -653,9 +586,6 @@ const SignUp = () => {
 								color="primary"
 								className={classes.submit}
 								disabled={!valueTermos}
-							onClick={() => {
-								cadastrarClienteNoAssas();
-							}}
 							>
 								{i18n.t("signup.buttons.submit")}
 							</Button>
