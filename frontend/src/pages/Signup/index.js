@@ -568,7 +568,7 @@ const SignUp = () => {
 								<Typography variant="body2" color="textSecondary" align="center">
 									<label>
 										<input type={'checkbox'} onClick={() => (valueTermos) ? (setValueTermos(false)) : setValueTermos(true)} />
-										<span>Eu aceito as </span>
+										<span>Eu li e aceito as </span>
 										<Link target={'_blank'} download='Política de Privacidade Whatsticket.pdf' color="inherit" href={politicaDePrivacidade}>
 											{"Políticas de Privacidade"}
 										</Link>{" e os "}
