@@ -86,6 +86,7 @@ const CreateCompanyAssasService = async (
         });
 
     let data = new Date();
+    data.setMonth(data.getMonth() + 1);
 
     let planSelected = await ShowPlanService(planId);
 
@@ -93,7 +94,7 @@ const CreateCompanyAssasService = async (
     await axios.post("https://www.asaas.com/api/v3/subscriptions", {
         'customer': `${customeid}`,
         'billingType': 'BOLETO',
-        'nextDueDate': `${data.getFullYear()}-${data.getMonth() + 2}-${diaVencimento}`,
+        'nextDueDate': `${data.getFullYear()}-${data.getMonth() + 1}-${diaVencimento}`,
         'value': `${planSelected.value.toFixed(2)}`,
         'cycle': 'MONTHLY',
         'description': `${planSelected.name}`,
