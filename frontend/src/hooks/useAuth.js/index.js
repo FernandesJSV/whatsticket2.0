@@ -110,7 +110,7 @@ const useAuth = () => {
       const dueDate = data.user.company.dueDate;
       const hoje = moment(moment()).format("DD/MM/yyyy");
       const vencimento = moment(dueDate).format("DD/MM/yyyy");
-      
+
       var diff = moment(dueDate).diff(moment(moment()).format());
 
       var before = moment(moment().format()).isBefore(dueDate);
@@ -135,7 +135,8 @@ const useAuth = () => {
       } else {
         console.log("BLOQUEADO")
         toastError(`Opss! Sua assinatura venceu ${vencimento}.
-Entre em contato com o Suporte para mais informações! `);
+Entre em contato com o Suporte para mais informações! Ou assine nossa plataforma aqui`);
+        history.push("/signup")
         setLoading(false);
       }
 

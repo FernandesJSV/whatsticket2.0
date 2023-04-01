@@ -171,6 +171,18 @@ const Login = () => {
 							</Link>
 						</Grid>
 					</Grid>
+					<Grid container>
+						<Grid item>
+							<Link
+								href="#"
+								variant="body2"
+								component={RouterLink}
+								to="/testegratis"
+							>
+								{"Teste gratuitamente durante 7 dias!"}
+							</Link>
+						</Grid>
+					</Grid>
 
 				</form>
 			</div>

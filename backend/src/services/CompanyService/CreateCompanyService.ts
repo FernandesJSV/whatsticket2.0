@@ -23,6 +23,7 @@ interface CompanyData {
   campaignsEnabled?: boolean;
   dueDate?: string;
   recurrence?: string;
+  isTest?: boolean;
 }
 
 const CreateCompanyService = async (
@@ -46,7 +47,8 @@ const CreateCompanyService = async (
     password,
     campaignsEnabled,
     dueDate,
-    recurrence
+    recurrence,
+    isTest
   } = companyData;
 
   const companySchema = Yup.object().shape({
@@ -69,8 +71,38 @@ const CreateCompanyService = async (
       )
   });
 
+
+
   try {
-    await companySchema.validate({ name });
+    const company = await Company.findOne({ where: { name: name } });
+    console.log(company);
+    if (company !== null) {
+      if (company.isTest == false) {
+        await companySchema.validate({ name });
+      } else if (company.isTest == true) {
+        const companyUpdate = await company.update({
+          name,
+          phone,
+          email,
+          status,
+          cnpj,
+          razaosocial,
+          cep,
+          estado,
+          cidade,
+          bairro,
+          logradouro,
+          numero,
+          diaVencimento,
+          planId,
+          dueDate,
+          recurrence,
+          isTest
+        });
+
+        return companyUpdate;
+      }
+    }
   } catch (err: any) {
     throw new AppError(err.message);
   }
@@ -91,7 +123,8 @@ const CreateCompanyService = async (
     diaVencimento,
     planId,
     dueDate,
-    recurrence
+    recurrence,
+    isTest
   });
   const [user, created] = await User.findOrCreate({
     where: { name, email },

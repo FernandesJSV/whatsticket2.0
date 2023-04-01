@@ -87,7 +87,7 @@ const UserSchema = Yup.object().shape({
 	email: Yup.string().email("Invalid email").required("Required"),
 });
 
-const SignUp = () => {
+const Teste = () => {
 	const classes = useStyles();
 	const history = useHistory();
 	let companyId = null
@@ -97,7 +97,10 @@ const SignUp = () => {
 		companyId = params.companyId
 	}
 
-	const initialState = { cnpj: "", razaosocial: "", name: "", phone: "", cep: "", estado: "", cidade: "", bairro: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: "", planId: "", isTest: false };
+	let data = new Date();
+	let diaDeHoje = data.getDate();
+
+	const initialState = { cnpj: "", razaosocial: "", name: "", phone: "", cep: "", estado: "", cidade: "", bairro: "", logradouro: "", numero: "", email: "", password: "", diaVencimento: diaDeHoje, planId: 4, isTest: true };
 
 	const [numeroIsSN, setNumeroIsSN] = useState(false);
 
@@ -112,14 +115,15 @@ const SignUp = () => {
 	const [user] = useState(initialState);
 
 	const handleSignUp = async values => {
-		const dueDate = moment().add(0	, "month").set("day", values.diaVencimento + 5).format();
+		const dueDate = moment().add(7, "day").format();
 		Object.assign(values, { recurrence: "MENSAL" });
 		Object.assign(values, { dueDate: dueDate });
 		Object.assign(values, { status: "t" });
 		Object.assign(values, { campaignsEnabled: true });
 		try {
+			console.log(values);
 			await openApi.post("/companies/cadastro", values);
-			await openApi.post("companies/cadastroassas", values);
+			// await openApi.post("/companies/cadastroassas", values);
 			toast.success(i18n.t("signup.toasts.success"));
 			history.push("/login");
 		} catch (err) {
@@ -128,177 +132,7 @@ const SignUp = () => {
 		}
 	};
 
-	const [plans, setPlans] = useState([]);
-	const { list: listPlans } = usePlans();
-
-	useEffect(() => {
-		async function fetchData() {
-			const list = await listPlans();
-			setPlans(list);
-		}
-		fetchData();
-	}, []);
-
 	const [valueTermos, setValueTermos] = useState(false);
-
-	const [valuesInput, setValuesInput] = useState({
-		cnpj: `${initialState.cnpj}`,
-		razaosocial: `${initialState.razaosocial}`,
-		name: `${initialState.name}`,
-		phone: `${initialState.phone}`,
-		cep: `${initialState.cep}`,
-		estado: `${initialState.estado}`,
-		cidade: `${initialState.cidade}`,
-		bairro: `${initialState.bairro}`,
-		logradouro: `${initialState.logradouro}`,
-		numero: `${initialState.numero}`,
-		email: `${initialState.email}`,
-		diasVencimento: [1, 5, 10, 15, 20, 25],
-		diaVencimento: `${initialState.diaVencimento}`,
-		planId: `${initialState.planId}`,
-	});
-
-	const obterEndereco = async (cep) => {
-		const url = `https://viacep.com.br/ws/${cep}/json/`;
-
-		return fetch(url)
-			.then(response => response.json())
-			.then(data => {
-				if (!data.erro) {
-					return data;
-				} else {
-					return null;
-				}
-			})
-			.catch(error => console.error(error));
-	}
-
-	const obterDadosEmpresa = async (cnpj) => {
-		cnpj = removeCnpjMask(cnpj);
-
-		const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}/days/15`;
-
-		let request = new XMLHttpRequest();
-
-		request.open('GET', url);
-
-		request.setRequestHeader('Content-Type', 'application/json');
-		request.setRequestHeader('Authorization', 'Bearer d8f84800c2b14af485ecdd46aa354a46a8c75dddbfed1759eaa2cd544705b749');
-
-		request.onload = function () {
-			if (request.status === 200) {
-				let response = JSON.parse(request.responseText);
-				return response;
-			} else {
-				console.log('Erro ao fazer requisição:', request.statusText);
-			}
-		};
-
-		request.send();
-	}
-
-	function preencherCamposComCnpj(data) {
-		setValuesInput({
-			...valuesInput,
-			razaosocial: data.nome,
-			name: data.fantasia
-		})
-	}
-
-	function preencherCamposComEndereco(data) {
-		setValuesInput({
-			...valuesInput,
-			cep: data.cep,
-			estado: data.uf,
-			cidade: data.localidade,
-			bairro: data.bairro,
-			logradouro: data.logradouro
-		})
-	}
-
-	const onChange = (e) => {
-		const { name, value } = e.target
-
-		setValuesInput({
-			...valuesInput,
-			[name]: value
-		});
-
-		if (name === 'cep' && value.length === 9) {
-			obterEndereco(value).then(data => {
-				if (data) {
-					preencherCamposComEndereco(data);
-				}
-			});
-		}
-
-		if (name === 'cnpj' && value.length === 18) {
-			obterDadosEmpresa(value)
-				.then(data => {
-					console.log(data)
-					if (data) {
-						preencherCamposComCnpj(data);
-					}
-				})
-		}
-
-		console.log(valuesInput);
-	}
-
-	const onChangeDiaVencimento = (e) => {
-		setValuesInput({
-			...valuesInput,
-			diaVencimento: e
-		})
-	}
-
-	const onChangePlan = (e) => {
-		setValuesInput({
-			...valuesInput,
-			planId: e
-		})
-	}
-
-	const cnpjMask = (cnpj) => {
-		return cnpj
-			.replace(/\D/g, "")
-			.substring(0, 14)
-			.replace(/^(\d{2})(\d)/, "$1.$2")
-			.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-			.replace(/\.(\d{3})(\d)/, ".$1/$2")
-			.replace(/(\d{4})(\d)/, "$1-$2")
-	}
-
-	const removeCnpjMask = (cnpj) => {
-		return cnpj
-			.replace(".", "")
-			.replace(".", "")
-			.replace("/", "")
-			.replace("-", "")
-	}
-
-	const phoneMask = (phone) => {
-		return phone
-			.replace(/\D/g, "")
-			.substring(0, 11)
-			.replace(/^(\d{2})(\d)/, "($1) $2")
-			.replace(/(\d)(\d{4})$/, "$1-$2")
-	}
-
-	const cepMask = (cep) => {
-		return cep
-			.replace(/\D/g, '')
-			.substring(0, 8)
-			.replace(/^(\d{5})(\d)/, '$1-$2')
-	}
-
-	const numeroMask = (numero) => {
-		numero = numero.replace(/\D/g, '');
-		if (numero.length > 5) {
-			numero = numero.substring(0, 5);
-		}
-		return numero;
-	}
 
 	return (
 		<Container component="main" maxWidth="xs">
@@ -311,7 +145,7 @@ const SignUp = () => {
 					<img className={classes.img} src={logo} alt="Whats" />
 				</div>
 				<Typography component="h1" variant="h5">
-					{i18n.t("signup.title")}
+					{"Teste Grátis"}
 				</Typography>
 				{/* <form className={classes.form} noValidate onSubmit={handleSignUp}> */}
 				<Formik
@@ -320,7 +154,6 @@ const SignUp = () => {
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
 						setTimeout(() => {
-							// cadastrarClienteNoAssas(values);
 							handleSignUp(values);
 							actions.setSubmitting(false);
 						}, 400);
@@ -528,7 +361,7 @@ const SignUp = () => {
 										required
 									/>
 								</Grid>
-								<Grid item xs={12}>
+								{/* <Grid item xs={12}>
 									<InputLabel htmlFor="diaVencimento-selection">Dia do Vencimento</InputLabel>
 									<Field
 										as={Select}
@@ -543,10 +376,10 @@ const SignUp = () => {
 											(value < 10) ? (<MenuItem name="diaVencimento" key={key} value={value} onClick={() => onChangeDiaVencimento(value)}>0{value}</MenuItem>) : <MenuItem name="diaVencimento" key={key} value={value} onClick={() => onChangeDiaVencimento(value)}>{value}</MenuItem>
 										))}
 									</Field>
-								</Grid>
+								</Grid> */}
 
 								{/* Componente padrão - Seleção de plano */}
-								<Grid item xs={12}>
+								{/* <Grid item xs={12}>
 									<InputLabel htmlFor="plan-selection">Plano</InputLabel>
 									<Field
 										as={Select}
@@ -563,7 +396,7 @@ const SignUp = () => {
 											</MenuItem>
 										))}
 									</Field>
-								</Grid>
+								</Grid> */}
 							</Grid>
 							<Box mt={2}>
 								<Typography variant="body2" color="textSecondary" align="center">
@@ -611,4 +444,4 @@ const SignUp = () => {
 	);
 };
 
-export default SignUp;
+export default Teste;

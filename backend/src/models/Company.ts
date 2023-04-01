@@ -155,6 +155,9 @@ class Company extends Model<Company> {
 
   @Column
   diaVencimento: string;
+
+  @Column
+  isTest: boolean;
 }
 
 export default Company;
