@@ -112,7 +112,7 @@ const SignUp = () => {
 	const [user] = useState(initialState);
 
 	const handleSignUp = async values => {
-		const dueDate = moment().add(0	, "month").set("day", values.diaVencimento + 5).format();
+		const dueDate = moment().add(1, "month").set("date", values.diaVencimento).format();
 		Object.assign(values, { recurrence: "MENSAL" });
 		Object.assign(values, { dueDate: dueDate });
 		Object.assign(values, { status: "t" });
