@@ -160,7 +160,7 @@ const Login = () => {
 						{i18n.t("login.buttons.submit")}
 					</Button>
 					<Grid container>
-						<Grid item>
+						<Grid item style={{marginBottom: "4%"}}>
 							<Link
 								href="#"
 								variant="body2"
@@ -179,7 +179,7 @@ const Login = () => {
 								component={RouterLink}
 								to="/testegratis"
 							>
-								{"Teste gratuitamente durante 7 dias!"}
+								{"Teste gratuitamente por 7 dias!"}
 							</Link>
 						</Grid>
 					</Grid>
