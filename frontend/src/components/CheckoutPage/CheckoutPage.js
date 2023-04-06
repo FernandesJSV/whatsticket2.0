@@ -29,11 +29,13 @@ import Invoices from "../../pages/Financeiro";
 
 
 export default function CheckoutPage(props) {
-  const steps = ["Dados", "Personalizar", "Revisar"];
+  const { faturaId } = props;
+  const steps = ["Dados", "Revisar", "Confirmar", "Pagamento"];
   const { formId, formField } = checkoutFormModel;
-  
-  
-  
+
+
+
+  const [invoice, setInvoice] = useState(props.Invoice)
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(1);
   const [datePayment, setDatePayment] = useState(null);
@@ -42,26 +44,28 @@ export default function CheckoutPage(props) {
   const isLastStep = activeStep === steps.length - 1;
   const { user } = useContext(AuthContext);
 
-function _renderStepContent(step, setFieldValue, setActiveStep, values ) {
+  function _renderStepContent(step, setFieldValue, setActiveStep, values) {
 
-  switch (step) {
-    case 0:
-      return <AddressForm formField={formField} values={values} setFieldValue={setFieldValue}  />;
-    case 1:
-      return <PaymentForm 
-      formField={formField} 
-      setFieldValue={setFieldValue} 
-      setActiveStep={setActiveStep} 
-      activeStep={step} 
-      invoiceId={invoiceId}
-      values={values}
-      />;
-    case 2:
-      return <ReviewOrder />;
-    default:
-      return <div>Not Found</div>;
+    switch (step) {
+      case 0:
+        return <AddressForm formField={formField} values={values} setFieldValue={setFieldValue} />;
+      case 1:
+        return <PaymentForm
+          formField={formField}
+          setFieldValue={setFieldValue}
+          setActiveStep={setActiveStep}
+          activeStep={step}
+          invoiceId={invoiceId}
+          values={values}
+        />;
+      case 2:
+        return <ReviewOrder />;
+      case 3:
+        return <CheckoutSuccess pix={invoice} faturaId={faturaId}/>
+      default:
+        return <div>Not Found</div>;
+    }
   }
-}
 
 
   async function _submitForm(values, actions) {
@@ -93,7 +97,7 @@ function _renderStepContent(step, setFieldValue, setActiveStep, values ) {
       toast.success("Assinatura realizada com sucesso!, aguardando a realização do pagamento");
     } catch (err) {
       actions.setSubmitting(false);
-     
+
       toastError(err);
     }
   }
@@ -126,11 +130,11 @@ function _renderStepContent(step, setFieldValue, setActiveStep, values ) {
       </Stepper>
       <React.Fragment>
         {activeStep === steps.length ? (
-          <CheckoutSuccess pix={datePayment} />
+          <CheckoutSuccess pix={datePayment} faturaId={faturaId} />
         ) : (
           <Formik
             initialValues={{
-              ...user, 
+              ...user,
               ...formInitialValues
             }}
             validationSchema={currentValidationSchema}
@@ -147,7 +151,7 @@ function _renderStepContent(step, setFieldValue, setActiveStep, values ) {
                     </Button>
                   )}
                   <div className={classes.wrapper}>
-                    {activeStep !== 1 && (
+                    {activeStep !== 1 && activeStep !== (steps.length - 1) && (
                       <Button
                         disabled={isSubmitting}
                         type="submit"

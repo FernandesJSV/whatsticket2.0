@@ -82,9 +82,13 @@ const Invoices = () => {
   const [storagePlans, setStoragePlans] = React.useState([]);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [invoicesAsaas, setInvoicesAsaas] = useReducer(reducer, []);
+  const [onlyInvoiceAsaas, setOnlyInvoiceAsaas] = useState({});
+  const companyId = localStorage.getItem("companyId");
 
 
   const handleOpenContactModal = (invoices) => {
+    setOnlyInvoiceAsaas(invoices);
     setStoragePlans(invoices);
     setSelectedContactId(null);
     setContactModalOpen(true);
@@ -108,6 +112,7 @@ const Invoices = () => {
           const { data } = await api.get("/invoices/all", {
             params: { searchParam, pageNumber },
           });
+          await dataInvoicesAsaas(companyId);
           dispatch({ type: "LOAD_INVOICES", payload: data });
           setHasMore(data.hasMore);
           setLoading(false);
@@ -159,6 +164,30 @@ const Invoices = () => {
 
   }
 
+  const dataInvoicesAsaas = async (companyId) => {
+    const data = await api.get(`/invoicesasaas/${companyId}`);
+    console.log("Data: ", data.data);
+    setInvoicesAsaas({type: "LOAD_INVOICES", payload: data.data});
+  }
+
+  const statusAsaas = (status) => {
+    if(status === "PENDING"){
+      return "PENDENTE";
+    } else if(status === "RECEIVED") {
+      return "PAGO";
+    } else if(status === "CONFIRMED") {
+      return "PAGO";
+    } else if(status === "OVERDUE") {
+      return "VENCIDA"
+    } else if(status === "REFUNDED") {
+      return "ESTORNADA"
+    } else if(status === "AWAITING_RISK_ANALYSIS") {
+      return "EM ANÁLISE";
+    } else if(status === "RECEIVED_IN_CASH") {
+      return "PAGO EM DINHEIRO"
+    }
+  }
+
   return (
     <MainContainer>
       <SubscriptionModal
@@ -167,10 +196,11 @@ const Invoices = () => {
         aria-labelledby="form-dialog-title"
         Invoice={storagePlans}
         contactId={selectedContactId}
+        faturaId={onlyInvoiceAsaas.id}
 
       ></SubscriptionModal>
       <MainHeader>
-        <Title>Faturas</Title>
+        <Title>Financeiro</Title>
       </MainHeader>
       <Paper
         className={classes.mainPaper}
@@ -190,15 +220,15 @@ const Invoices = () => {
           </TableHead>
           <TableBody>
             <>
-              {invoices.map((invoices) => (
-                <TableRow style={rowStyle(invoices)} key={invoices.id}>
-                  <TableCell align="center">{invoices.id}</TableCell>
-                  <TableCell align="center">{invoices.detail}</TableCell>
+              {invoicesAsaas.map((invoices, index) => (
+                <TableRow key={invoices.id}>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">{invoices.description}</TableCell>
                   <TableCell style={{ fontWeight: 'bold' }} align="center">{invoices.value.toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })}</TableCell>
                   <TableCell align="center">{moment(invoices.dueDate).format("DD/MM/YYYY")}</TableCell>
-                  <TableCell style={{ fontWeight: 'bold' }} align="center">{rowStatus(invoices)}</TableCell>
+                  <TableCell style={{ fontWeight: 'bold' }} align="center">{statusAsaas(invoices.status)}</TableCell>
                   <TableCell align="center">
-                    {rowStatus(invoices) !== "Pago" ?
+                    {invoices.status === "PENDING" ?
                       <Button
                         size="small"
                         variant="outlined"

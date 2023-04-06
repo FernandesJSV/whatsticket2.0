@@ -7,12 +7,27 @@ import { FaCopy, FaCheckCircle } from 'react-icons/fa';
 import { socketConnection } from "../../../services/socket";
 import { useDate } from "../../../hooks/useDate";
 import { toast } from "react-toastify";
+import api from "../../../services/api"
+import moment from 'moment';
 
 function CheckoutSuccess(props) {
 
+  const { faturaId } = props;
+  const [boleto, setBoleto] = useState({
+    identificationField: '',
+    nossoNumero: '',
+    barCode: ''
+  });
+  const [pixAsaas, setPixAsaas] = useState({
+    encodedImage: '',
+    payload: '',
+    expirationDate: ''
+  });
   const { pix } = props;
-  const [pixString,] = useState(pix.qrcode.qrcode);
-  const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  // const [pixString,] = useState(pix.qrcode.qrcode);
+  const [copiedBoleto, setCopiedBoleto] = useState(false);
+  const [copiedPix, setCopiedPix] = useState(false);
   const history = useHistory();
 
   const { dateToClient } = useDate();
@@ -31,39 +46,99 @@ function CheckoutSuccess(props) {
     });
   }, [history, dateToClient]);
 
-  const handleCopyQR = () => {
+  const handleCodBoleto = () => {
     setTimeout(() => {
-      setCopied(false);
-    }, 1 * 1000);
-    setCopied(true);
+      setCopiedBoleto(false);
+    }, 1 * 5000);
+    setCopiedBoleto(true);
   };
 
-  return (
+  const handleQRCodePix = () => {
+    setTimeout(() => {
+      setCopiedPix(false);
+    }, 1 * 5000);
+    setCopiedPix(true);
+  };
+
+  const obterBoleto = async (faturaId) => {
+    const boleto = await api.get(`/invoicesboleto/${faturaId}`)
+      .then((response) => {
+        setBoleto(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  const obterPix = async (faturaId) => {
+    const pix = await api.get(`/invoicespix/${faturaId}`)
+      .then((response) => {
+        console.log(response.data)
+        setPixAsaas(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    obterBoleto(faturaId);
+    obterPix(faturaId);
+  }, [faturaId]);
+
+  return (!isLoading &&
     <React.Fragment>
       <Total>
         <span>TOTAL</span>
-        <strong>R${pix.valor.original.toLocaleString('pt-br', { minimumFractionDigits: 2 })}</strong>
+        <strong>R${pix.value.toLocaleString('pt-br', { minimumFractionDigits: 2 })}</strong>
+      </Total>
+      <Total>
+        <span>Data Vencimento</span>
+        <strong>{moment(pix.dueDate).format("DD/MM/YYYY")}</strong>
+      </Total>
+      <Total>
+        <span>Boleto </span>
+        <strong>{boleto.barCode}</strong>
       </Total>
       <SuccessContent>
-        <QRCode value={pixString} />
-        <CopyToClipboard text={pixString} onCopy={handleCopyQR}>
+        <CopyToClipboard text={boleto.barCode} onCopy={handleCodBoleto}>
           <button className="copy-button" type="button">
-            {copied ? (
+            {copiedBoleto ? (
               <>
                 <span>Copiado</span>
                 <FaCheckCircle size={18} />
               </>
             ) : (
               <>
-                <span>Copiar código QR</span>
+                <span>Copiar código de Barras Boleto</span>
+                <FaCopy size={18} />
+              </>
+            )}
+          </button>
+        </CopyToClipboard>
+        <Total>
+          {/* <QRCode value={`data:image/png;base64,${pixAsaas.encodedImage}`} size={256} /> */}
+          <img style={{position:"relative"}} src={`data:image/png;base64,${pixAsaas.encodedImage}`} />
+        </Total>
+        <CopyToClipboard text={pixAsaas.payload} onCopy={handleQRCodePix}>
+          <button className="copy-button" type="button">
+            {copiedPix ? (
+              <>
+                <span>Copiado</span>
+                <FaCheckCircle size={18} />
+              </>
+            ) : (
+              <>
+                <span>Copiar PIX</span>
                 <FaCopy size={18} />
               </>
             )}
           </button>
         </CopyToClipboard>
         <span>
-          Para finalizar, basta realizar o pagamento escaneando ou colando o
-          código Pix acima :)
+          Para finalizar, basta realizar o pagamento escaneando o QR code do Pix<br></br>
+          ou copiando o código de barra do Boleto! :)
         </span>
       </SuccessContent>
     </React.Fragment>

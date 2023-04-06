@@ -28,6 +28,7 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from '@material-ui/icons/LocalAtm';
 import PaymentIcon from '@material-ui/icons/Payment'
+import LocalAtm from '@material-ui/icons/LocalAtm'
 
 import { i18n } from "../translate/i18n";
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
@@ -365,6 +366,17 @@ const MainListItems = (props) => {
               icon={<PeopleAltOutlinedIcon />}
             />
             <ListItemLink
+              to="/subscription"
+              primary="Assinatura"
+              icon={<PaymentIcon />}
+              // className={classes.menuItem}
+            />
+            <ListItemLink 
+              to="/financeiro"
+              primary="Financeiro"
+              icon={<LocalAtm/>}
+            />
+            <ListItemLink
               to="/messages-api"
               primary={i18n.t("mainDrawer.listItems.messagesAPI")}
               icon={<CodeRoundedIcon />}
@@ -373,12 +385,6 @@ const MainListItems = (props) => {
               to="/settings"
               primary={i18n.t("mainDrawer.listItems.settings")}
               icon={<SettingsOutlinedIcon />}
-            />
-            <ListItemLink
-              to="/subscription"
-              primary="Assinatura"
-              icon={<PaymentIcon />}
-              // className={classes.menuItem}
             />
           </>
         )}

@@ -13,12 +13,16 @@ import FindAllInvoiceService from "../services/InvoicesService/FindAllInvoiceSer
 import ListInvoicesServices from "../services/InvoicesService/ListInvoicesServices";
 import ShowInvoceService from "../services/InvoicesService/ShowInvoiceService";
 import UpdateInvoiceService from "../services/InvoicesService/UpdateInvoiceService";
+import FindInvoiceAsaasServices from "../services/InvoicesService/FindInvoiceAsaasServices";
+import PaymentInvoicesServices from "../services/InvoicesService/PaymentInvoicesServices";
+import PaymentInvoicesPixServices from "../services/InvoicesService/PaymentInvoicesPixServices";
+import { type } from "os";
 
 type IndexQuery = {
   searchParam: string;
   pageNumber: string;
 };
- 
+
 type StorePlanData = {
   name: string;
   id?: number | string;
@@ -32,6 +36,18 @@ type UpdateInvoiceData = {
   status: string;
   id?: string;
 };
+
+type Boleto = {
+  identificationField: string;
+  nossoNumero: string;
+  barCode: string;
+}
+
+type Pix = {
+  encodedImage: string;
+  payload: string;
+  expirationDate: string;
+}
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
@@ -59,6 +75,29 @@ export const list = async (req: Request, res: Response): Promise<Response> => {
 
   return res.status(200).json(invoice);
 };
+
+export const listInvoicesAsaas = async (req: Request, res: Response): Promise<Response> => {
+  const {companyId} = req.params;
+  const invoice: Invoices[] = await FindInvoiceAsaasServices(companyId);
+
+  return res.status(200).json(invoice);
+}
+
+export const findBoletoAsaas = async (req: Request, res: Response): Promise<Response> => {
+  const { faturaId } = req.params;
+  const boleto: Boleto = await PaymentInvoicesServices(faturaId);
+  console.log("Boleto do Asaas Controller: ", boleto);
+
+  return res.status(200).json(boleto);
+}
+
+export const findPixAsaas = async (req: Request, res: Response): Promise<Response> => {
+  const { faturaId } = req.params;
+  const pix: Pix = await PaymentInvoicesPixServices(faturaId);
+  console.log("Pix Asaas Controller: ", pix);
+
+  return res.status(200).json(pix);
+}
 
 export const update = async (
   req: Request,
@@ -92,7 +131,7 @@ export const update = async (
 
   return res.status(200).json(plan);
 };
-/* export const store = async (req: Request, res: Response): Promise<Response> => {
+  export const store = async (req: Request, res: Response): Promise<Response> => {
   const newPlan: StorePlanData = req.body;
 
   const schema = Yup.object().shape({
@@ -116,49 +155,49 @@ export const update = async (
   return res.status(200).json(plan);
 };
 
-export const show = async (req: Request, res: Response): Promise<Response> => {
-  const { id } = req.params;
+// export const show = async (req: Request, res: Response): Promise<Response> => {
+//   const { id } = req.params;
 
-  const plan = await ShowPlanService(id);
+//   const plan = await ShowPlanService(id);
 
-  return res.status(200).json(plan);
-};
+//   return res.status(200).json(plan);
+// };
 
-export const update = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const planData: UpdateInvoiceData = req.body;
+// export const update = async (
+//   req: Request,
+//   res: Response
+// ): Promise<Response> => {
+//   const planData: UpdateInvoiceData = req.body;
 
-  const schema = Yup.object().shape({
-    name: Yup.string()
-  });
+//   const schema = Yup.object().shape({
+//     name: Yup.string()
+//   });
 
-  try {
-    await schema.validate(planData);
-  } catch (err) {
-    throw new AppError(err.message);
-  }
+//   try {
+//     await schema.validate(planData);
+//   } catch (err) {
+//     throw new AppError(err.message);
+//   }
 
-  const { id, name, users, connections, queues, value } = planData;
+//   const { id, name, users, connections, queues, value } = planData;
 
-  const plan = await UpdatePlanService({
-    id,
-    name,
-    users,
-    connections,
-    queues,
-    value
-  });
+//   const plan = await UpdatePlanService({
+//     id,
+//     name,
+//     users,
+//     connections,
+//     queues,
+//     value
+//   });
 
-  // const io = getIO();
-  // io.emit("plan", {
-  //   action: "update",
-  //   plan
-  // });
+//   // const io = getIO();
+//   // io.emit("plan", {
+//   //   action: "update",
+//   //   plan
+//   // });
 
-  return res.status(200).json(plan);
-};
+//   return res.status(200).json(plan);
+// };
 
 export const remove = async (
   req: Request,
@@ -169,4 +208,4 @@ export const remove = async (
   const plan = await DeletePlanService(id);
 
   return res.status(200).json(plan);
-}; */
+};

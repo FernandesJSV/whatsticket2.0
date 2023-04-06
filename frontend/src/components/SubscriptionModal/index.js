@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave }) => {
+const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave, faturaId }) => {
   const classes = useStyles();
   const isMounted = useRef(true);
 
@@ -60,6 +60,7 @@ const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave
         <DialogContent dividers>
           <CheckoutPage
             Invoice={Invoice}
+            faturaId={faturaId}
           />
         </DialogContent>
       </Dialog>

@@ -120,7 +120,7 @@ export default function Pricing(props) {
         users: plansCompanies.users,
         connections: plansCompanies.connections,
         queues: plansCompanies.queues,
-        buttonText: 'SELECIONAR',
+        buttonText: 'CONFIRMAR',
         buttonVariant: 'outlined',
       })
 
