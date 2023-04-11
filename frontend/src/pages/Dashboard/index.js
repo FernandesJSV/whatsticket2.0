@@ -289,7 +289,7 @@ const Dashboard = () => {
           <Grid item xs={12} sm={6} md={4}>
             <CardCounter
               icon={<GroupIcon fontSize="inherit" />}
-              title="Aguardando atendimentos"
+              title="Aguardando atendimento"
               value={counters.supportPending}
               loading={loading}
             />
