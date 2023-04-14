@@ -3,6 +3,7 @@ import Company from "../../models/Company";
 import Setting from "../../models/Setting";
 import ShowPlanService from "../PlanService/ShowPlanService";
 import axios from 'axios';
+import CreateCompanyAssasService from "./CreateCompanyAssasService";
 
 interface CompanyData {
   name: string;
@@ -90,6 +91,10 @@ const UpdateCompanyService = async (
     if (!created) {
       await setting.update({ value: `${campaignsEnabled}` });
     }
+  }
+
+  if(isTest) {
+    let companyTest = await CreateCompanyAssasService(companyData);
   }
 
   //Atualizar Cliente Asaas
@@ -257,6 +262,26 @@ const UpdateCompanyService = async (
         console.log(error);
       });
   }
+
+  await company.update({
+    name,
+    phone,
+    email,
+    status,
+    cnpj,
+    razaosocial,
+    cep,
+    estado,
+    cidade,
+    bairro,
+    logradouro,
+    numero,
+    diaVencimento,
+    planId,
+    dueDate,
+    recurrence,
+    isTest: false
+  });
 
   return company;
 };
