@@ -263,25 +263,27 @@ const UpdateCompanyService = async (
       });
   }
 
-  await company.update({
-    name,
-    phone,
-    email,
-    status,
-    cnpj,
-    razaosocial,
-    cep,
-    estado,
-    cidade,
-    bairro,
-    logradouro,
-    numero,
-    diaVencimento,
-    planId,
-    dueDate,
-    recurrence,
-    isTest: false
-  });
+  if(isTest) {
+    await company.update({
+      name,
+      phone,
+      email,
+      status,
+      cnpj,
+      razaosocial,
+      cep,
+      estado,
+      cidade,
+      bairro,
+      logradouro,
+      numero,
+      diaVencimento,
+      planId,
+      dueDate,
+      recurrence,
+      isTest: false
+    });
+  }
 
   return company;
 };
