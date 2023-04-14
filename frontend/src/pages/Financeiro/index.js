@@ -197,6 +197,7 @@ const Invoices = () => {
         Invoice={storagePlans}
         contactId={selectedContactId}
         faturaId={onlyInvoiceAsaas.id}
+        isSubscription={false}
 
       ></SubscriptionModal>
       <MainHeader>

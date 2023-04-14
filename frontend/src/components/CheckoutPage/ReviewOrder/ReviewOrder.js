@@ -2,9 +2,11 @@ import React from 'react';
 import { useFormikContext } from 'formik';
 import { Typography, Grid } from '@material-ui/core';
 import ShippingDetails from './ShippingDetails';
+import PaymentDetails from './PaymentDetails';
 
 export default function ReviewOrder() {
   const { values: formValues } = useFormikContext();
+  console.log("Form Values: ", formValues);
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -12,6 +14,11 @@ export default function ReviewOrder() {
       </Typography>
       <Grid container spacing={2}>
         <ShippingDetails formValues={formValues} />
+        {!(formValues.firstName == '') ? (
+          <PaymentDetails formValues={formValues} />
+        ) : (
+          <div></div>
+        )}
       </Grid>
     </React.Fragment>
   );

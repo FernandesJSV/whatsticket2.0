@@ -8,7 +8,7 @@ function PaymentDetails(props) {
   const { plan } = formValues;
 
   const newPlan = JSON.parse(plan);
-  const { users, connections, price } = newPlan;
+  const { users, connections, price, queues } = newPlan;
   return (
     <Grid item xs={12} sm={12}>
       <Typography variant="h6" gutterBottom className={classes.title}>
@@ -17,6 +17,7 @@ function PaymentDetails(props) {
       <Typography gutterBottom>Usuários: {users}</Typography>
       <Typography gutterBottom>Whatsapps: {connections}</Typography>
       <Typography gutterBottom>Cobrança: Mensal</Typography>
+      <Typography gutterBottom>Filas: {queues}</Typography>
       <Typography gutterBottom>Total: R${price.toLocaleString('pt-br', {minimumFractionDigits: 2})}</Typography>
     </Grid>
   );

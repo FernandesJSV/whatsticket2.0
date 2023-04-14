@@ -6,6 +6,7 @@ import { green } from "@material-ui/core/colors";
 import Dialog from "@material-ui/core/Dialog";
 import DialogContent from "@material-ui/core/DialogContent";
 import CheckoutPage from "../CheckoutPage/";
+import SubscriptionStepper from "../SubscriptionStepper"
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave, faturaId }) => {
+const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave, faturaId, isSubscription, infoCompany }) => {
   const classes = useStyles();
   const isMounted = useRef(true);
 
@@ -58,10 +59,12 @@ const ContactModal = ({ open, onClose, Invoice, contactId, initialValues, onSave
     <div className={classes.root}>
       <Dialog open={open} onClose={handleClose} maxWidth="md" scroll="paper">
         <DialogContent dividers>
-          <CheckoutPage
-            Invoice={Invoice}
-            faturaId={faturaId}
-          />
+          {isSubscription ? (<SubscriptionStepper Invoice={Invoice} faturaId={faturaId} infoCompany={infoCompany} />) : (
+            <CheckoutPage
+              Invoice={Invoice}
+              faturaId={faturaId}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
