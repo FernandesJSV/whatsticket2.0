@@ -133,6 +133,56 @@ const Teste = () => {
 	};
 
 	const [valueTermos, setValueTermos] = useState(false);
+	const [cnpj, setCnpj] = useState(initialState.cnpj);
+	const [phoneNumber, setPhoneNumber] = useState(initialState.phone);
+	const [cep, setCep] = useState(initialState.cep);
+	const [numero, setNumero] = useState(initialState.numero);
+
+	const cnpjMask = (cnpj) => {
+		return cnpj
+			.replace(/\D/g, "")
+			.substring(0, 14)
+			.replace(/^(\d{2})(\d)/, "$1.$2")
+			.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+			.replace(/\.(\d{3})(\d)/, ".$1/$2")
+			.replace(/(\d{4})(\d)/, "$1-$2")
+	}
+
+	const removeCnpjMask = (cnpj) => {
+		return cnpj
+			.replace(".", "")
+			.replace(".", "")
+			.replace("/", "")
+			.replace("-", "")
+	}
+
+	const phoneMask = (phone) => {
+		return phone
+			.replace(/\D/g, "")
+			.substring(0, 11)
+			.replace(/^(\d{2})(\d)/, "($1) $2")
+			.replace(/(\d)(\d{4})$/, "$1-$2")
+	}
+
+	const cepMask = (cep) => {
+		return cep
+			.replace(/\D/g, '')
+			.substring(0, 8)
+			.replace(/^(\d{5})(\d)/, '$1-$2')
+	}
+
+	const removeCepMask = (cep) => {
+		return cep.replace(/\D/g, '');
+	}
+
+	const numeroMask = (numero) => {
+		numero = numero.replace(/\D/g, '');
+		if (numero.length > 5) {
+			numero = numero.substring(0, 5);
+		}
+		return numero;
+	}
+
 
 	return (
 		<Container component="main" maxWidth="xs">
@@ -153,6 +203,11 @@ const Teste = () => {
 					enableReinitialize={true}
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
+						values.cnpj = removeCnpjMask(cnpj);
+						values.phone = removeCepMask(phoneNumber);
+						values.cep = removeCepMask(cep);
+						values.numero = numero;
+						console.log("Valores form: ", values)
 						setTimeout(() => {
 							handleSignUp(values);
 							actions.setSubmitting(false);
@@ -174,8 +229,8 @@ const Teste = () => {
 										required
 										id="cnpj"
 										label="CNPJ da Empresa"
-										// onChange={onChange}
-										// value={cnpjMask(valuesInput.cnpj)}
+										onChange={(e) => setCnpj(cnpjMask(e.target.value))}
+										value={cnpj}
 									/>
 								</Grid>
 
@@ -223,8 +278,8 @@ const Teste = () => {
 										fullWidth
 										id="phone"
 										label="Telefone"
-										// onChange={onChange}
-										// value={telefoneMask(values.telefone)}
+										onChange={(e) => setPhoneNumber(e.target.value)}
+										value={phoneMask(phoneNumber)}
 									/>
 								</Grid>
 
@@ -239,8 +294,8 @@ const Teste = () => {
 										fullWidth
 										id="cep"
 										label="CEP"
-										// onChange={onChange}
-										// value={cepMask(values.cep)}
+										onChange={(e) => setCep(e.target.value)}
+										value={cepMask(cep)}
 									/>
 								</Grid>
 
@@ -319,6 +374,8 @@ const Teste = () => {
 										fullWidth
 										id="numero"
 										label="Número"
+										onChange={(e) => setNumero(e.target.value)}
+										value={numeroMask(numero)}
 										disabled={
 											(numeroIsSN == false) ? (false) : (true)
 										}

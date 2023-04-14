@@ -158,6 +158,11 @@ const SignUp = () => {
 		planId: `${initialState.planId}`,
 	});
 
+	const [cnpj, setCnpj] = useState(initialState.cnpj);
+	const [phoneNumber, setPhoneNumber] = useState(initialState.phone);
+	const [cep, setCep] = useState(initialState.cep);
+	const [numero, setNumero] = useState(initialState.numero);
+
 	const obterEndereco = async (cep) => {
 		const url = `https://viacep.com.br/ws/${cep}/json/`;
 
@@ -197,14 +202,6 @@ const SignUp = () => {
 		request.send();
 	}
 
-	function preencherCamposComCnpj(data) {
-		setValuesInput({
-			...valuesInput,
-			razaosocial: data.nome,
-			name: data.fantasia
-		})
-	}
-
 	function preencherCamposComEndereco(data) {
 		setValuesInput({
 			...valuesInput,
@@ -214,35 +211,6 @@ const SignUp = () => {
 			bairro: data.bairro,
 			logradouro: data.logradouro
 		})
-	}
-
-	const onChange = (e) => {
-		const { name, value } = e.target
-
-		setValuesInput({
-			...valuesInput,
-			[name]: value
-		});
-
-		if (name === 'cep' && value.length === 9) {
-			obterEndereco(value).then(data => {
-				if (data) {
-					preencherCamposComEndereco(data);
-				}
-			});
-		}
-
-		if (name === 'cnpj' && value.length === 18) {
-			obterDadosEmpresa(value)
-				.then(data => {
-					console.log(data)
-					if (data) {
-						preencherCamposComCnpj(data);
-					}
-				})
-		}
-
-		console.log(valuesInput);
 	}
 
 	const onChangeDiaVencimento = (e) => {
@@ -292,6 +260,10 @@ const SignUp = () => {
 			.replace(/^(\d{5})(\d)/, '$1-$2')
 	}
 
+	const removeCepMask = (cep) => {
+		return cep.replace(/\D/g, '');
+	}
+
 	const numeroMask = (numero) => {
 		numero = numero.replace(/\D/g, '');
 		if (numero.length > 5) {
@@ -319,8 +291,12 @@ const SignUp = () => {
 					enableReinitialize={true}
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
+						values.cnpj = removeCnpjMask(cnpj);
+						values.phone = removeCepMask(phoneNumber);
+						values.cep = removeCepMask(cep);
+						values.numero = numero;
+						console.log("Valores form: ", values)
 						setTimeout(() => {
-							// cadastrarClienteNoAssas(values);
 							handleSignUp(values);
 							actions.setSubmitting(false);
 						}, 400);
@@ -341,8 +317,8 @@ const SignUp = () => {
 										required
 										id="cnpj"
 										label="CNPJ da Empresa"
-										// onChange={onChange}
-										// value={cnpjMask(valuesInput.cnpj)}
+										onChange={(e) => setCnpj(cnpjMask(e.target.value))}
+										value={cnpj}
 									/>
 								</Grid>
 
@@ -390,8 +366,8 @@ const SignUp = () => {
 										fullWidth
 										id="phone"
 										label="Telefone"
-										// onChange={onChange}
-										// value={telefoneMask(values.telefone)}
+										onChange={(e) => setPhoneNumber(e.target.value)}
+										value={phoneMask(phoneNumber)}
 									/>
 								</Grid>
 
@@ -406,8 +382,8 @@ const SignUp = () => {
 										fullWidth
 										id="cep"
 										label="CEP"
-										// onChange={onChange}
-										// value={cepMask(values.cep)}
+										onChange={(e) => setCep(e.target.value)}
+										value={cepMask(cep)}
 									/>
 								</Grid>
 
@@ -486,6 +462,8 @@ const SignUp = () => {
 										fullWidth
 										id="numero"
 										label="Número"
+										onChange={(e) => setNumero(e.target.value)}
+										value={numeroMask(numero)}
 										disabled={
 											(numeroIsSN == false) ? (false) : (true)
 										}
