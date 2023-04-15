@@ -62,7 +62,7 @@ const CreateCompanyAssasService = async (
         'complement': '',
         'province': `${bairro}`,
         'externalReference': '',
-        'notificationDisabled': false,
+        'notificationDisabled': true,
         'additionalEmails': '',
         'municipalInscription': '',
         'stateInscription': '',

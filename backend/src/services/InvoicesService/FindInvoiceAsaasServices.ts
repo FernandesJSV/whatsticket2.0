@@ -24,7 +24,7 @@ const FindInvoiceAsaasServices = async (companyId: number | string): Promise<Inv
     deleted: false,
     additionalEmails: null,
     externalReference: null,
-    notificationDisabled: false,
+    notificationDisabled: true,
     observations: '',
     municipalInscription: null,
     stateInscription: null,

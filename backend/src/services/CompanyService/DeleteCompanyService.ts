@@ -30,7 +30,7 @@ const DeleteCompanyService = async (id: string): Promise<void> => {
     deleted: false,
     additionalEmails: null,
     externalReference: null,
-    notificationDisabled: false,
+    notificationDisabled: true,
     observations: '',
     municipalInscription: null,
     stateInscription: null,
