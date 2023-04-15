@@ -15,6 +15,7 @@ import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import {
+	CircularProgress,
 	FormControl,
 	InputLabel,
 	MenuItem,
@@ -296,6 +297,7 @@ const SignUp = () => {
 						values.cep = removeCepMask(cep);
 						values.numero = numero;
 						console.log("Valores form: ", values)
+						actions.setSubmitting(true);
 						setTimeout(() => {
 							handleSignUp(values);
 							actions.setSubmitting(false);
@@ -303,7 +305,13 @@ const SignUp = () => {
 					}}
 				>
 					{({ touched, errors, isSubmitting }) => (
-						<Form className={classes.form}>
+						(isSubmitting) ? (
+							<CircularProgress
+							 size={60}
+							 className={classes.buttonProgress}
+							/>
+						) : (
+							<Form className={classes.form}>
 							<Grid container spacing={2}>
 								<Grid item xs={12}>
 									<Field
@@ -581,6 +589,7 @@ const SignUp = () => {
 								</Grid>
 							</Grid>
 						</Form>
+						)
 					)}
 				</Formik>
 			</div>
