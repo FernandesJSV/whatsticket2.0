@@ -29,7 +29,7 @@ import logo from "../../assets/logoLoginOption.png";
 
 import { i18n } from "../../translate/i18n";
 
-import { openApi } from "../../services/api";
+import api, { openApi } from "../../services/api";
 import toastError from "../../errors/toastError";
 import moment from "moment";
 import systemVars from '../../../package.json'
@@ -160,6 +160,8 @@ const SignUp = () => {
 	});
 
 	const [cnpj, setCnpj] = useState(initialState.cnpj);
+	const [razaosocial, setRazaoSocial] = useState(initialState.razaosocial);
+	const [nameEmpresa, setNameEmpresa] = useState(initialState.name);
 	const [phoneNumber, setPhoneNumber] = useState(initialState.phone);
 	const [cep, setCep] = useState(initialState.cep);
 	const [numero, setNumero] = useState(initialState.numero);
@@ -186,29 +188,11 @@ const SignUp = () => {
 	const obterDadosEmpresa = async (cnpj) => {
 		cnpj = removeCnpjMask(cnpj);
 
-		const url = `https://www.receitaws.com.br/v1/cnpj/${cnpj}/days/15`;
-
-		let request = new XMLHttpRequest();
-
-		request.open('GET', url);
-
-		request.setRequestHeader('Content-Type', 'application/json');
-		request.setRequestHeader('Authorization', 'Bearer d8f84800c2b14af485ecdd46aa354a46a8c75dddbfed1759eaa2cd544705b749');
-
-		request.onload = function () {
-			if (request.status === 200) {
-				let response = JSON.parse(request.responseText);
-				return response;
-			} else {
-				console.log('Erro ao fazer requisição:', request.statusText);
-			}
-		};
-
-		request.send();
+		const { data } = await openApi.get(`companies/apicnpj/${cnpj}`);
+		setRazaoSocial(data.nome);
 	}
 
 	function preencherCamposComEndereco(data) {
-		console.log(data);
 		setEstado(data.uf);
 		setCidade(data.localidade);
 		setBairro(data.bairro);
@@ -280,6 +264,12 @@ const SignUp = () => {
 		}
 	}, [cep])
 
+	useEffect(() => {
+		if(cnpj.length == 18) {
+			obterDadosEmpresa(cnpj);
+		}
+	}, [cnpj])
+
 	return (
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
@@ -300,6 +290,7 @@ const SignUp = () => {
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
 						values.cnpj = removeCnpjMask(cnpj);
+						values.razaosocial = razaosocial;
 						values.phone = removeCepMask(phoneNumber);
 						values.cep = removeCepMask(cep);
 						values.estado = estado;
@@ -352,8 +343,8 @@ const SignUp = () => {
 										fullWidth
 										id="razaosocial"
 										label="Razão Social"
-										// value={values.razaosocial}
-										// onChange={onChange}
+										onChange={(e) => setRazaoSocial(e.target.value)}
+										value={razaosocial}
 									/>
 								</Grid>
 
@@ -369,8 +360,8 @@ const SignUp = () => {
 										fullWidth
 										id="name"
 										label="Nome da Empresa"
-										// value={values.name}
-										// onChange={onChange}
+										// onChange={(e) => setNameEmpresa(e.target.value)}
+										// value={nameEmpresa}
 									/>
 								</Grid>
 

@@ -135,6 +135,8 @@ const Teste = () => {
 
 	const [valueTermos, setValueTermos] = useState(false);
 	const [cnpj, setCnpj] = useState(initialState.cnpj);
+	const [razaosocial, setRazaoSocial] = useState(initialState.razaosocial);
+	const [nameEmpresa, setNameEmpresa] = useState(initialState.name);
 	const [phoneNumber, setPhoneNumber] = useState(initialState.phone);
 	const [cep, setCep] = useState(initialState.cep);
 	const [numero, setNumero] = useState(initialState.numero);
@@ -142,6 +144,13 @@ const Teste = () => {
 	const [cidade, setCidade] = useState(initialState.cidade);
 	const [bairro, setBairro] = useState(initialState.bairro);
 	const [logradouro, setLogradouro] = useState(initialState.logradouro);
+
+	const obterDadosEmpresa = async (cnpj) => {
+		cnpj = removeCnpjMask(cnpj);
+
+		const { data } = await openApi.get(`companies/apicnpj/${cnpj}`);
+		setRazaoSocial(data.nome);
+	}
 
 	const obterEndereco = async (cep) => {
 		const url = `https://viacep.com.br/ws/${cep}/json/`;
@@ -217,6 +226,12 @@ const Teste = () => {
 		}
 	}, [cep])
 
+	useEffect(() => {
+		if(cnpj.length == 18) {
+			obterDadosEmpresa(cnpj);
+		}
+	}, [cnpj])
+
 	return (
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
@@ -237,6 +252,7 @@ const Teste = () => {
 					validationSchema={UserSchema}
 					onSubmit={(values, actions) => {
 						values.cnpj = removeCnpjMask(cnpj);
+						values.razaosocial = razaosocial;
 						values.phone = removeCepMask(phoneNumber);
 						values.cep = removeCepMask(cep);
 						values.estado = estado;
@@ -289,8 +305,8 @@ const Teste = () => {
 										fullWidth
 										id="razaosocial"
 										label="Razão Social"
-										// value={values.razaosocial}
-										// onChange={onChange}
+										onChange={(e) => setRazaoSocial(e.target.value)}
+										value={razaosocial}
 									/>
 								</Grid>
 
@@ -306,8 +322,8 @@ const Teste = () => {
 										fullWidth
 										id="name"
 										label="Nome da Empresa"
-										// value={values.name}
-										// onChange={onChange}
+										// onChange={(e) => setNameEmpresa(e.target.value)}
+										// value={nameEmpresa}
 									/>
 								</Grid>
 

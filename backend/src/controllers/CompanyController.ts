@@ -13,6 +13,7 @@ import DeleteCompanyService from "../services/CompanyService/DeleteCompanyServic
 import FindAllCompaniesService from "../services/CompanyService/FindAllCompaniesService";
 import User from "../models/User";
 import CreateCompanyAssasService from "../services/CompanyService/CreateCompanyAssasService";
+import axios from 'axios';
 
 
 type IndexQuery = {
@@ -149,3 +150,24 @@ export const createAssasClient = async (
 
   return res.status(200).json(response);
 }
+
+export const apiCnpj = async (req: Request, res: Response): Promise<Response> => {
+  const { cnpj } = req.params;
+
+  let company = null;
+
+  await axios.get(`https://receitaws.com.br/v1/cnpj/${cnpj}`, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    console.log(response);
+    company = response.data;
+  })
+  .catch(err => {
+    console.log(err);
+  })
+
+  return res.status(200).json(company);
+};

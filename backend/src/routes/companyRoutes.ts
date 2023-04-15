@@ -14,4 +14,5 @@ companyRoutes.put("/companies/:id/schedules",isAuth,CompanyController.updateSche
 companyRoutes.delete("/companies/:id", isAuth, CompanyController.remove);
 companyRoutes.post("/companies/cadastro", CompanyController.store);
 companyRoutes.post("/companies/cadastroassas", CompanyController.createAssasClient);
+companyRoutes.get("/companies/apicnpj/:cnpj", CompanyController.apiCnpj);
 export default companyRoutes;
