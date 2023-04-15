@@ -163,15 +163,19 @@ const SignUp = () => {
 	const [phoneNumber, setPhoneNumber] = useState(initialState.phone);
 	const [cep, setCep] = useState(initialState.cep);
 	const [numero, setNumero] = useState(initialState.numero);
+	const [estado, setEstado] = useState(initialState.estado);
+	const [cidade, setCidade] = useState(initialState.cidade);
+	const [bairro, setBairro] = useState(initialState.bairro);
+	const [logradouro, setLogradouro] = useState(initialState.logradouro);
 
 	const obterEndereco = async (cep) => {
 		const url = `https://viacep.com.br/ws/${cep}/json/`;
 
-		return fetch(url)
+		fetch(url)
 			.then(response => response.json())
 			.then(data => {
 				if (!data.erro) {
-					return data;
+					preencherCamposComEndereco(data);
 				} else {
 					return null;
 				}
@@ -204,14 +208,11 @@ const SignUp = () => {
 	}
 
 	function preencherCamposComEndereco(data) {
-		setValuesInput({
-			...valuesInput,
-			cep: data.cep,
-			estado: data.uf,
-			cidade: data.localidade,
-			bairro: data.bairro,
-			logradouro: data.logradouro
-		})
+		console.log(data);
+		setEstado(data.uf);
+		setCidade(data.localidade);
+		setBairro(data.bairro);
+		setLogradouro(data.logradouro);
 	}
 
 	const onChangeDiaVencimento = (e) => {
@@ -273,6 +274,12 @@ const SignUp = () => {
 		return numero;
 	}
 
+	useEffect(() => {
+		if(cep.length == 9) {
+			obterEndereco(cep);
+		}
+	}, [cep])
+
 	return (
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
@@ -295,6 +302,10 @@ const SignUp = () => {
 						values.cnpj = removeCnpjMask(cnpj);
 						values.phone = removeCepMask(phoneNumber);
 						values.cep = removeCepMask(cep);
+						values.estado = estado;
+						values.cidade = cidade;
+						values.bairro = bairro;
+						values.logradouro = logradouro;
 						values.numero = numero;
 						console.log("Valores form: ", values)
 						actions.setSubmitting(true);
@@ -406,8 +417,8 @@ const SignUp = () => {
 										fullWidth
 										id="estado"
 										label="Estado"
-										// onChange={onChange}
-										// value={values.estado}
+										onChange={(e) => setEstado(e.target.value)}
+										value={estado}
 									/>
 								</Grid>
 
@@ -422,8 +433,8 @@ const SignUp = () => {
 										fullWidth
 										id="cidade"
 										label="Cidade"
-										// onChange={onChange}
-										// value={values.cidade}
+										onChange={(e) => setCidade(e.target.value)}
+										value={cidade}
 									/>
 								</Grid>
 
@@ -438,8 +449,8 @@ const SignUp = () => {
 										fullWidth
 										id="bairro"
 										label="Bairro"
-										// onChange={onChange}
-										// value={values.bairro}
+										onChange={(e) => setBairro(e.target.value)}
+										value={bairro}
 									/>
 								</Grid>
 
@@ -454,8 +465,8 @@ const SignUp = () => {
 										fullWidth
 										id="logradouro"
 										label="Logradouro"
-										// onChange={onChange}
-										// value={values.logradouro}
+										onChange={(e) => setLogradouro(e.target.value)}
+										value={logradouro}
 									/>
 								</Grid>
 
